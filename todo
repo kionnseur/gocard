@@ -1,0 +1,26 @@
+- afficher le menu de démarage
+- afficher le menu de deck building
+- afficher le terrain
+
++ afficher le timer
++ afficher la vie
+- afficher la qty restante du deck
+- afficher le menu pause
+
+- ajout de responsive dans le menu de démarage
+- ajout de responsive dans le menu de deck building
+- ajout de responsive dans le terrain
+
+- implement la timer
+- implement la vie
+- implement le deck
+- implement le menu pause
+- implement le deck building
+
+
+
+
+- ajout de traduction
+- ajout de la musique
+- ajout de la musique de victoire
+- ajout de la musique de défaite
