@@ -8,14 +8,7 @@ import (
 	"github.com/jupiterrider/purego-sdl3/ttf"
 )
 
-type Player struct {
-	Name            string
-	LifePoints      uint32
-	InvocationPower uint8
-	IvocationNuber  uint8
-	SpellTrapSet    uint8
-	Deck            int
-}
+
 
 func RenderDuel(renderer *sdl.Renderer) ui.AppState {
 	elements := getDuelElements()
@@ -24,6 +17,27 @@ func RenderDuel(renderer *sdl.Renderer) ui.AppState {
 		if btn, ok := e.(*ui.Button); ok {
 			buttons = append(buttons, btn)
 		}
+	}
+
+	duel := Duel{
+		LeftPlayer: Player{
+			Name:            "Red",
+			LifePoints:      4000,
+			InvocationPower: 9,
+			IvocationNuber:  5,
+			SpellTrapSet:    5,
+			Deck:            40,
+		},
+		RightPlayer: Player{
+			Name:            "Blue",
+			LifePoints:      4000,
+			InvocationPower: 9,
+			IvocationNuber:  5,
+			SpellTrapSet:    5,
+			Deck:            40,
+		},
+		IsPaused: false,
+		Timer:    100,
 	}
 
 	for {
@@ -50,6 +64,8 @@ func RenderDuel(renderer *sdl.Renderer) ui.AppState {
 						return btn.OnClick()
 					}
 				}
+			case sdl.EventType(sdl.KeycodeEscape):
+				duel.pausedPressed();
 			}
 		}
 
@@ -231,5 +247,17 @@ func getRightPlayerHud(font *ttf.Font, player Player) []ui.Element {
 			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
 			Font:      font,
 		},
+	}
+}
+
+
+
+
+func (d *Duel) pausedPressed() {
+	if d.IsPaused {
+		d.IsPaused = false
+		
+	} else {
+		d.IsPaused = true
 	}
 }

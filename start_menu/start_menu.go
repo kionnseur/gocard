@@ -1,4 +1,4 @@
-package menu
+package start_menu
 
 import (
 	"gocard/ui"
@@ -50,7 +50,7 @@ func getStartMenuButtons() []ui.Button {
 			Text:      "Deck Builder",
 			TextColor: sdl.Color{R: 105, G: 105, B: 0, A: 255},
 			Font:      font,
-			OnClick:   func() ui.AppState { print("Deck Builder"); return ui.StateDeckBuilder },
+			OnClick:   func() ui.AppState { return ui.StateDeckBuilder },
 		},
 		{
 			Rect:      sdl.FRect{X: 140, Y: 180, W: 200, H: 50},
@@ -58,7 +58,7 @@ func getStartMenuButtons() []ui.Button {
 			Text:      "Duel",
 			TextColor: sdl.Color{R: 255, G: 5, B: 255, A: 255},
 			Font:      font,
-			OnClick:   func() ui.AppState { print("Duel"); return ui.StateDuel },
+			OnClick:   func() ui.AppState { return ui.StateDuel },
 		},
 	}
 }
