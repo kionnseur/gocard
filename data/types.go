@@ -1,6 +1,7 @@
 package data
 
 type Deck struct {
+	ID    string
 	Name  string
 	Cards []Card
 }
