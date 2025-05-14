@@ -8,17 +8,20 @@ import (
 	"github.com/jupiterrider/purego-sdl3/ttf"
 )
 
+const (
+	gap      float32 = 20
+	fontSize float32 = 24
+)
+
 var (
 	// deckBuilderData map[string]string
 	scrollLevel float32 = 0.0
-	gap         float32 = 20
-	fontSize    float32 = 24
 	_, font             = ttf.Init(), ttf.OpenFont("assets/fonts/arial.ttf", fontSize)
 )
 
 // Déclare le HUD de la listview à l'extérieur
 var listViewHud = &ui.Hud{
-	Rect:  sdl.FRect{X: gap, Y: 80, W: 200, H: 300},
+	Rect:  sdl.FRect{X: gap, Y: 80, W: 200, H: float32(data.ScreenHeight) - gap},
 	Color: sdl.Color{R: 100, G: 100, B: 100, A: 50},
 }
 
@@ -28,6 +31,7 @@ func RenderDeckBuilder(renderer *sdl.Renderer, window *sdl.Window) ui.AppState {
 	for {
 		sdl.GetWindowSize(window, &data.ScreenWidth, &data.ScreenHeight)
 
+		// contient le btn nouveau deck et retour
 		buttons = getDeckBuilderButtons()
 
 		var event sdl.Event
@@ -61,6 +65,8 @@ func RenderDeckBuilder(renderer *sdl.Renderer, window *sdl.Window) ui.AppState {
 		sdl.RenderClear(renderer)
 
 		// Dessine le HUD de la listview
+		// met à jjuor la taille du HUD selon la taille de la fenêtre à chaque frame
+		listViewHud.Rect.H = float32(data.ScreenHeight) - gap - listViewHud.Rect.Y
 		listViewHud.Draw(renderer)
 
 		// Dessine les éléments de la liste, scroll/clipping selon le HUD
@@ -107,6 +113,7 @@ func getDeckBuilderButtons() []ui.Button {
 }
 
 func getDeckListElements(decksList []data.Deck) []ui.Element {
+	// Crée une liste d'éléments de type TextBox représentent chaque deck
 	elements := make([]ui.Element, len(decksList))
 	for i, deck := range decksList {
 		var r, g, b = ui.ColorBreathSin(i * 10)
