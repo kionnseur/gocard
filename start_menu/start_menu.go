@@ -15,7 +15,7 @@ func RenderStartMenu(renderer *sdl.Renderer) ui.AppState {
 		for sdl.PollEvent(&event) {
 			switch event.Type() {
 			case sdl.EventQuit:
-				return ui.StateQuit
+				return ui.AppState{State: ui.StateQuit}
 			case sdl.EventMouseButtonDown:
 				x, y := event.Button().X, event.Button().Y
 				for _, btn := range buttons {
@@ -50,7 +50,7 @@ func getStartMenuButtons() []ui.Button {
 			Text:      "Deck Builder",
 			TextColor: sdl.Color{R: 105, G: 105, B: 0, A: 255},
 			Font:      font,
-			OnClick:   func() ui.AppState { return ui.StateDeckBuilder },
+			OnClick:   func() ui.AppState { return ui.AppState{State: ui.StateDeckBuilder} },
 		},
 		{
 			Rect:      sdl.FRect{X: 140, Y: 180, W: 200, H: 50},
@@ -58,7 +58,7 @@ func getStartMenuButtons() []ui.Button {
 			Text:      "Duel",
 			TextColor: sdl.Color{R: 255, G: 5, B: 255, A: 255},
 			Font:      font,
-			OnClick:   func() ui.AppState { return ui.StateDuel },
+			OnClick:   func() ui.AppState { return ui.AppState{State: ui.StateDuel} },
 		},
 	}
 }

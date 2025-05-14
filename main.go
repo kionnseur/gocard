@@ -25,11 +25,11 @@ func main() {
 	defer sdl.DestroyRenderer(renderer)
 	defer sdl.DestroyWindow(window)
 
-	state := ui.StateStartMenu
+	state := ui.AppState{State: ui.StateStartMenu}
 
-	for state != ui.StateQuit {
+	for state.State != ui.StateQuit {
 		sdl.GetWindowSize(window, &data.ScreenWidth, &data.ScreenHeight)
-		switch state {
+		switch state.State {
 		case ui.StateStartMenu:
 			state = ui.AppState(start_menu.RenderStartMenu(renderer))
 		case ui.StateDeckBuilder:
@@ -37,7 +37,7 @@ func main() {
 		case ui.StateDuel:
 			state = ui.AppState(duel.RenderDuel(renderer))
 		default:
-			state = ui.StateQuit
+			state = ui.AppState{State: ui.StateQuit}
 		}
 	}
 }

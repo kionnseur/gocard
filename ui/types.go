@@ -5,14 +5,19 @@ import (
 	"github.com/jupiterrider/purego-sdl3/ttf"
 )
 
-type AppState int
+type State int
 
 const (
-	StateStartMenu AppState = iota
+	StateStartMenu State = iota
 	StateDeckBuilder
 	StateDuel
 	StateQuit
 )
+
+type AppState struct {
+	State
+	Data map[string]string
+}
 
 type Hud struct {
 	Element

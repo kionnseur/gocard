@@ -8,8 +8,6 @@ import (
 	"github.com/jupiterrider/purego-sdl3/ttf"
 )
 
-
-
 func RenderDuel(renderer *sdl.Renderer) ui.AppState {
 	elements := getDuelElements()
 	buttons := make([]*ui.Button, 0, len(elements))
@@ -55,7 +53,7 @@ func RenderDuel(renderer *sdl.Renderer) ui.AppState {
 		for sdl.PollEvent(&event) {
 			switch event.Type() {
 			case sdl.EventQuit:
-				return ui.StateQuit
+				return ui.AppState{State: ui.StateQuit}
 			case sdl.EventMouseButtonDown:
 				x, y := event.Button().X, event.Button().Y
 				for _, btn := range buttons {
@@ -65,7 +63,7 @@ func RenderDuel(renderer *sdl.Renderer) ui.AppState {
 					}
 				}
 			case sdl.EventType(sdl.KeycodeEscape):
-				duel.pausedPressed();
+				duel.pausedPressed()
 			}
 		}
 
@@ -101,7 +99,7 @@ func getDuelElements() []ui.Element {
 			Text:      "Retour ⬅️",
 			TextColor: sdl.Color{R: 255, G: 0, B: 255, A: 255},
 			Font:      font,
-			OnClick:   func() ui.AppState { print("Retour"); return ui.StateStartMenu },
+			OnClick:   func() ui.AppState { print("Retour"); return ui.AppState{State: ui.StateStartMenu} },
 		},
 	}
 
@@ -250,13 +248,10 @@ func getRightPlayerHud(font *ttf.Font, player Player) []ui.Element {
 	}
 }
 
-
-
-
 func (d *Duel) pausedPressed() {
 	if d.IsPaused {
 		d.IsPaused = false
-		
+
 	} else {
 		d.IsPaused = true
 	}

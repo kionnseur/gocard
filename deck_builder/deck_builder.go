@@ -39,7 +39,7 @@ func RenderDeckBuilder(renderer *sdl.Renderer, window *sdl.Window) ui.AppState {
 
 			switch event.Type() {
 			case sdl.EventQuit:
-				return ui.StateQuit
+				return ui.AppState{State: ui.StateQuit}
 			case sdl.EventMouseButtonDown:
 				x, y := event.Button().X, event.Button().Y
 				for _, btn := range buttons {
@@ -99,7 +99,7 @@ func getDeckBuilderButtons() []ui.Button {
 			Text:      "Nouveau Deck",
 			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
 			Font:      font,
-			OnClick:   func() ui.AppState { return ui.StateStartMenu },
+			OnClick:   func() ui.AppState { return ui.AppState{State: ui.StateStartMenu} },
 		},
 		{
 			Rect:      sdl.FRect{X: float32(data.ScreenWidth) - 50, Y: 0, W: 50, H: 50},
@@ -107,7 +107,7 @@ func getDeckBuilderButtons() []ui.Button {
 			Text:      "Retour ⬅️",
 			TextColor: sdl.Color{R: 255, G: 0, B: 255, A: 255},
 			Font:      font,
-			OnClick:   func() ui.AppState { return ui.StateStartMenu },
+			OnClick:   func() ui.AppState { return ui.AppState{State: ui.StateStartMenu} },
 		},
 	}
 }
