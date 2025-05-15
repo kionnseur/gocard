@@ -32,8 +32,10 @@ func main() {
 		switch state.State {
 		case ui.StateStartMenu:
 			state = ui.AppState(start_menu.RenderStartMenu(renderer))
-		case ui.StateDeckBuilder:
-			state = ui.AppState(deck_builder.RenderDeckBuilder(renderer, window))
+		case ui.StateDeckMenu:
+			state = ui.AppState(deck_builder.RenderDeckMenu(renderer, window, state))
+		// case ui.StateDeckBuilder:
+		// 	state = ui.AppState(deck_builder.RenderDeckBuilder(renderer, window))
 		case ui.StateDuel:
 			state = ui.AppState(duel.RenderDuel(renderer))
 		default:

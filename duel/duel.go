@@ -68,7 +68,6 @@ func RenderDuel(renderer *sdl.Renderer) ui.AppState {
 		}
 
 		sdl.RenderPresent(renderer)
-		sdl.Delay(16)
 	}
 }
 

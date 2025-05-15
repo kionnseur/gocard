@@ -1,28 +1,37 @@
-- afficher le menu de démarage
+- afficher le menu de démarrage
 - afficher le menu de deck building
 - afficher le terrain
 
 + afficher le timer
 + afficher la vie
-- afficher la qty restante du deck
+- afficher la quantité restante du deck
 - afficher le menu pause
 
-- ajout de responsive dans le menu de démarage
+- ajout de responsive dans le menu de démarrage
 - ajout de responsive dans le menu de deck building
 - ajout de responsive dans le terrain
 
-- implement la timer
-- implement la vie
-- implement le deck
-- implement le menu pause
-- implement le deck building
+- implémenter le timer (affichage + logique)
+- implémenter la gestion de la vie (affichage + logique)
+- implémenter la pioche et la gestion du deck (affichage + logique)
+- implémenter le menu pause (affichage + navigation)
+- implémenter le deck building (création, édition, suppression de decks)
 
-- sauvegarde local
-- backup cloud
+- sauvegarde locale des decks et des scores
+- backup cloud (synchronisation des données)
 
-
-
-- ajout de traduction
-- ajout de la musique
+- ajout de traduction (multi-langue)
+- ajout de la musique de fond
 - ajout de la musique de victoire
 - ajout de la musique de défaite
+
+- gestion des effets sonores (clics, actions)
+- animation des cartes (pioche, pose, attaque)
+- transitions animées entre les menus
+- écran de victoire/défaite avec résumé de la partie
+
+- tutoriel interactif pour les nouveaux joueurs
+
+- options de configuration (son, langue, affichage)
+
+- export/import de decks

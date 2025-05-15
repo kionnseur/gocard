@@ -12,6 +12,7 @@ type Card interface {
 }
 
 type MonsterCard struct {
+	ID          string
 	Name        string
 	Image       string
 	Description string
@@ -21,6 +22,7 @@ type MonsterCard struct {
 }
 
 type SpellTrapCard struct {
+	ID          string
 	Name        string
 	Image       string
 	Description string

@@ -34,7 +34,6 @@ func RenderStartMenu(renderer *sdl.Renderer) ui.AppState {
 		}
 
 		sdl.RenderPresent(renderer)
-		sdl.Delay(16)
 	}
 }
 
@@ -50,7 +49,7 @@ func getStartMenuButtons() []ui.Button {
 			Text:      "Deck Builder",
 			TextColor: sdl.Color{R: 105, G: 105, B: 0, A: 255},
 			Font:      font,
-			OnClick:   func() ui.AppState { return ui.AppState{State: ui.StateDeckBuilder} },
+			OnClick:   func() ui.AppState { return ui.AppState{State: ui.StateDeckMenu} },
 		},
 		{
 			Rect:      sdl.FRect{X: 140, Y: 180, W: 200, H: 50},

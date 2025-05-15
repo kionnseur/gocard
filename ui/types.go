@@ -9,6 +9,7 @@ type State int
 
 const (
 	StateStartMenu State = iota
+	StateDeckMenu
 	StateDeckBuilder
 	StateDuel
 	StateQuit

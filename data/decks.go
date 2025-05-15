@@ -71,7 +71,7 @@ func debug_create_random_deck() Deck {
 	count := 40
 	cards := make([]Card, 0, count)
 	for i := 0; i < count; i++ {
-		cards = append(cards, &MonsterCard{Name: "Card 1", Image: "card1.png", Description: "Description 1", Level: 1, Attack: 100, Defense: 50})
+		cards = append(cards, debug_create_random_card())
 	}
 	id := "" + strconv.Itoa(rand.Intn(1000))
 	randomName := "Deck " + id
@@ -79,5 +79,21 @@ func debug_create_random_deck() Deck {
 		ID:    id,
 		Name:  randomName,
 		Cards: cards,
+	}
+}
+
+func debug_create_random_card() Card {
+	// retourne une carte random
+	// avec un nom random
+	id := "" + strconv.Itoa(rand.Intn(1000))
+	randomName := "Card " + id
+	return &MonsterCard{
+		ID:          id,
+		Name:        randomName,
+		Image:       "card" + id + ".png",
+		Description: "Description " + id,
+		Level:       rand.Intn(10) + 1,
+		Attack:      rand.Intn(1000),
+		Defense:     rand.Intn(1000),
 	}
 }
