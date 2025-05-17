@@ -29,7 +29,6 @@ func loadDeckList() {
 	for i := 0; i < 30; i++ {
 		deckList = append(deckList, debug_create_random_deck())
 	}
-	print("DeckList loaded")
 
 	// file, err := os.Open("decks.json")
 	// if err != nil {
@@ -38,6 +37,7 @@ func loadDeckList() {
 	// }
 	// defer file.Close()
 	// json.NewDecoder(file).Decode(&deckList)
+
 }
 
 func GetDeckList() []Deck {
@@ -54,6 +54,7 @@ func GetDeckById(id string) Deck {
 	}
 	return Deck{}
 }
+
 func DeleteDeckById(id string) {
 	deckListOnce.Do(loadDeckList)
 	for i, deck := range deckList {
@@ -64,6 +65,35 @@ func DeleteDeckById(id string) {
 	}
 }
 
+func DuplicateDeckById(id string) {
+	// duplique et ajoute le deck à la liste juste en dessous du deck d'origine
+	deckListOnce.Do(loadDeckList)
+
+	for i, deck := range deckList {
+		if deck.ID == id {
+			newDeck := deck
+			newDeck.ID = strconv.Itoa(rand.Intn(1000))
+			newDeck.Name = "Copy of " + newDeck.Name
+			deckList = append(deckList[:i+1], append([]Deck{newDeck}, deckList[i+1:]...)...)
+			return
+		}
+	}
+}
+func SaveDeck(deck Deck) {
+	//si le deck existe deja, on le remplace
+	deckListOnce.Do(loadDeckList)
+	for i, d := range deckList {
+		if d.ID == deck.ID {
+			deckList[i] = deck
+			return
+		}
+	}
+	deckList = append(deckList, deck)
+}
+
+// ////////////
+// Fonction temporaire pour créer un deck random
+// ////////////
 func debug_create_random_deck() Deck {
 	// retour un deck de 40 cartes
 	// avec un nom random

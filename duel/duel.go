@@ -98,7 +98,7 @@ func getDuelElements() []ui.Element {
 			Text:      "Retour ⬅️",
 			TextColor: sdl.Color{R: 255, G: 0, B: 255, A: 255},
 			Font:      font,
-			OnClick:   func() ui.AppState { print("Retour"); return ui.AppState{State: ui.StateStartMenu} },
+			OnClick:   func() ui.AppState { return ui.AppState{State: ui.StateStartMenu} },
 		},
 	}
 

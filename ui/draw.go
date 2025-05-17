@@ -30,14 +30,12 @@ func drawTextBoxLike(renderer *sdl.Renderer, rect sdl.FRect, color sdl.Color, te
 	// Crée la surface du texte
 	surface := ttf.RenderTextBlended(font, text, uint64(len(text)), textColor)
 	if surface == nil {
-		println(" création de la surface ; {font:", font, "text:", text, "color:", textColor.R, textColor.G, textColor.B, textColor.A, "}")
 		return
 	}
 
 	// Crée la texture à partir de la surface
 	texture := sdl.CreateTextureFromSurface(renderer, surface)
 	if texture == nil {
-		println("e création de la texture")
 		return
 	}
 	defer sdl.DestroyTexture(texture)

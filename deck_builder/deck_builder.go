@@ -49,7 +49,14 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState ui.AppS
 		if action == "delete" && deck.ID != "" {
 			data.DeleteDeckById(deck.ID)
 			// Réinitialise l'état pour revenir à la liste
-			appState = ui.AppState{State: ui.StateDeckMenu}
+			appState.Data["action"] = ""
+			// Recharge la liste des decks
+			ui_deck_list_elements = ui_getDeckListElements(data.GetDeckList())
+		}
+		if action == "duplicate" && deck.ID != "" {
+			data.DuplicateDeckById(deck.ID)
+			appState.Data["action"] = ""
+
 			// Recharge la liste des decks
 			ui_deck_list_elements = ui_getDeckListElements(data.GetDeckList())
 		}
@@ -213,18 +220,26 @@ func ui_getDeckInfo(deck data.Deck) ([]ui.Element, []ui.Button) {
 			TextColor: sdl.Color{R: 155, G: 55, B: 155, A: 255},
 			Font:      font,
 			OnClick: func() ui.AppState {
-				println("Editer deck")
 				return ui.AppState{State: ui.StateDeckMenu, Data: map[string]string{"deckId": deck.ID, "action": "edit"}}
 			},
 		},
 		{
-			Rect:      sdl.FRect{X: offset, Y: float32(9 * 35), W: listViewHud.Rect.W, H: 30},
+			Rect:      sdl.FRect{X: offset, Y: float32(9 * 35), W: 200, H: 30},
+			Color:     sdl.Color{R: 100, G: 100, B: 200, A: 255},
+			Text:      "Dupliquer",
+			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
+			Font:      font,
+			OnClick: func() ui.AppState {
+				return ui.AppState{State: ui.StateDeckMenu, Data: map[string]string{"deckId": deck.ID, "action": "duplicate"}}
+			},
+		},
+		{
+			Rect:      sdl.FRect{X: offset, Y: float32(10 * 35), W: listViewHud.Rect.W, H: 30},
 			Color:     sdl.Color{R: 200, G: 100, B: 100, A: 255},
 			Text:      "Supprimer",
 			TextColor: sdl.Color{R: 55, G: 155, B: 155, A: 255},
 			Font:      font,
 			OnClick: func() ui.AppState {
-				println("Supprimer deck")
 				return ui.AppState{State: ui.StateDeckMenu, Data: map[string]string{"deckId": deck.ID, "action": "delete"}}
 			},
 		},
