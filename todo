@@ -17,6 +17,8 @@
 - implémenter le menu pause (affichage + navigation)
 - implémenter le deck building (création, édition, suppression de decks)
 
+- responsive
+
 - sauvegarde locale des decks et des scores
 - backup cloud (synchronisation des données)
 

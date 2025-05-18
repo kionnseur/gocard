@@ -42,3 +42,8 @@ type Button struct {
 	Font      *ttf.Font
 	OnClick   func() AppState
 }
+
+func GetDefaultFont() *ttf.Font {
+	font := ttf.OpenFont("assets/arial.ttf", 24)
+	return font
+}

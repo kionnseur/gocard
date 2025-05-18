@@ -46,18 +46,24 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState ui.AppS
 			lastDeckId = deckId
 		}
 		// supprime avant d'afficher la liste
-		if action == "delete" && deck.ID != "" {
+		if action == "ask" {
+			uiDeckInfo, uiDeckInfoBtn = uiGetDeckInfo(deck)
+			for _, e := range uiDeckInfo {
+				e.Draw(renderer)
+			}
+			for _, e := range uiDeckInfoBtn {
+				e.Draw(renderer)
+			}
+		} else if action == "edit" {
+			return RenderDeckEditor(renderer, window, deck)
+		} else if action == "delete" && deck.ID != "" {
 			data.DeleteDeckById(deck.ID)
 			// Réinitialise l'état pour revenir à la liste
 			appState.Data["action"] = ""
-			// Recharge la liste des decks
 			uiDeckListElements = uiGetDeckListElements(data.GetDeckList())
-		}
-		if action == "duplicate" && deck.ID != "" {
+		} else if action == "duplicate" && deck.ID != "" {
 			data.DuplicateDeckById(deck.ID)
 			appState.Data["action"] = ""
-
-			// Recharge la liste des decks
 			uiDeckListElements = uiGetDeckListElements(data.GetDeckList())
 		}
 
@@ -80,19 +86,6 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState ui.AppS
 		buttons = getDeckMenuButtons()
 		for _, btn := range buttons {
 			btn.Draw(renderer)
-		}
-
-		// si l'on a les infos d'un deck, affiche les btn edit et delete
-		if action == "ask" {
-			uiDeckInfo, uiDeckInfoBtn = uiGetDeckInfo(deck)
-			for _, e := range uiDeckInfo {
-				e.Draw(renderer)
-			}
-
-			for _, e := range uiDeckInfoBtn {
-				e.Draw(renderer)
-			}
-
 		}
 
 		sdl.RenderPresent(renderer)
@@ -120,7 +113,6 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState ui.AppS
 						if x > rect.X && x < rect.X+rect.W &&
 							y > rect.Y && y < rect.Y+rect.H {
 							return btn.OnClick()
-
 						}
 					}
 				}
@@ -130,7 +122,6 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState ui.AppS
 						if x > btn.Rect.X && x < btn.Rect.X+btn.Rect.W &&
 							y > btn.Rect.Y && y < btn.Rect.Y+btn.Rect.H {
 							return btn.OnClick()
-
 						}
 					}
 
@@ -161,7 +152,9 @@ func getDeckMenuButtons() []ui.Button {
 			Text:      "Nouveau Deck",
 			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
 			Font:      font,
-			OnClick:   func() ui.AppState { return ui.AppState{State: ui.StateStartMenu} },
+			OnClick: func() ui.AppState {
+				return ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": "", "action": "new"}}
+			},
 		},
 		{
 			Rect:      sdl.FRect{X: float32(data.ScreenWidth) - 50, Y: 0, W: 50, H: 50},
