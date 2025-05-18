@@ -55,7 +55,7 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, deck data.Deck
 	}
 }
 
-// get colonnes elements
+// rectengles des 3 colonnes
 func GetColumnUI() ([]ui.Element, sdl.FRect) {
 	gap := float32(data.ScreenWidth / 48.0)
 	widthColA := float32(data.ScreenWidth * 103 / 480)
@@ -76,6 +76,7 @@ func GetColumnUI() ([]ui.Element, sdl.FRect) {
 	}, centerColRect
 }
 
+// retourne la liste des cartes à afficher dans la colonne centrale
 func GetCenterColomnUI(deck data.Deck, centerColRect sdl.FRect) []data.UICard {
 	uiCenterColumn := make([]data.UICard, 0, len(deck.Cards))
 	cardWidth := float32(50)
@@ -110,10 +111,11 @@ func GetCenterColomnUI(deck data.Deck, centerColRect sdl.FRect) []data.UICard {
 }
 
 func DrawSelectedCard(renderer *sdl.Renderer, card data.Card) {
-	cardWidth := float32(300)
-	cardHeight := float32(450)
+	gap := float32(data.ScreenWidth / 48.0)
+	cardWidth := (float32(data.ScreenWidth)*103.0)/480.0 - 2*gap
+	cardHeight := cardWidth * 1.5
 
-	cardRect := sdl.FRect{X: 40, Y: 40, W: cardWidth, H: cardHeight}
+	cardRect := sdl.FRect{X: float32(2 * data.ScreenWidth / 48), Y: 40, W: cardWidth, H: cardHeight}
 	uiCard := &data.UIMonsterCard{
 		Card: card,
 		Rect: cardRect,
