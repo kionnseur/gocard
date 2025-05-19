@@ -1,28 +1,46 @@
-- afficher le menu de démarrage
-- afficher le menu de deck building
+- start_menu 
+- affichage responsive
+- arrière-plan
+
+- deck_menu
+- affichage responsive
+- arrière-plan
+- deck préconstruit
+- ne pas laisser retirer le dernier deck jouable de la liste
+
+- deck_editor
+- Terminer la fonction Draw des cartes
+- Afficher la liste des cartes à droite
+- Filtre sur les cartes à droite
+- Bouton Ajouter/Retirer en dessous des infos de la carte sélectionnée à gauche
+- double clic pour ajouter/retirer
+
+- duel
 - afficher le terrain
-
 + afficher le timer
-+ afficher la vie
-- afficher la quantité restante du deck
++ afficher les points de vie
 - afficher le menu pause
-
-- ajout de responsive dans le menu de démarrage
-- ajout de responsive dans le menu de deck building
-- ajout de responsive dans le terrain
+- afficher la main
+- ajouter le tour par tour
+- afficher la quantité restante du deck
+- afficher la carte sélectionnée
+- afficher les actions (déplacer, détail)
+- implémenter les déplacements
+- implémenter la pioche (automatique au début du tour)
+- afficher un historique des actions
+- écran de défaite avec résumé de la partie
+- écran de victoire avec résumé de la partie
 
 - implémenter le timer (affichage + logique)
-- implémenter la gestion de la vie (affichage + logique)
-- implémenter la pioche et la gestion du deck (affichage + logique)
-- implémenter le menu pause (affichage + navigation)
+- implémenter la gestion des points de vie (affichage + logique)
 - implémenter le deck building (création, édition, suppression de decks)
 
-- responsive
+- sauvegarde
+- sauvegarde locale des decks, des scores et des paramètres
+- sauvegarde cloud (synchronisation des données)
+- Implémenter une sécurité pour les sauvegardes comme chiffrement et identification de corruption.
 
-- sauvegarde locale des decks et des scores
-- backup cloud (synchronisation des données)
-
-- ajout de traduction (multi-langue)
+- ajout de traduction (multilingue)
 - ajout de la musique de fond
 - ajout de la musique de victoire
 - ajout de la musique de défaite
@@ -30,10 +48,26 @@
 - gestion des effets sonores (clics, actions)
 - animation des cartes (pioche, pose, attaque)
 - transitions animées entre les menus
-- écran de victoire/défaite avec résumé de la partie
 
 - tutoriel interactif pour les nouveaux joueurs
 
 - options de configuration (son, langue, affichage)
 
 - export/import de decks
+
+- Ajouter des options pour améliorer l'accessibilité : mode daltonien, taille de texte ajustable.
+- Optimiser les performances.
+- Ajouter un mode "économie d'énergie" pour réduire la consommation.
+
+
+- Ajouter un mode multijoueur en local.
+- Ajouter un mode multijoueur en ligne.
+
+- Ajouter des statistiques de victoires/défaites/cartes les plus utilisées.
+
+- Permettre la personnalisation des avatars ou des profils des joueurs.
+- Ajouter des thèmes ou des skins pour les cartes et les menus.
+
+# pour un autre projet ?
+- Ajouter un système de mise à jour automatique.
+- Intégrer des notifications pour informer des nouveautés ou des événements.
