@@ -5,7 +5,7 @@ import (
 	"github.com/jupiterrider/purego-sdl3/ttf"
 )
 
-var font *ttf.Font
+var fontCache = map[float32]*ttf.Font{}
 
 func (h *Hud) Draw(renderer *sdl.Renderer) {
 	sdl.SetRenderDrawColor(renderer, h.Color.R, h.Color.G, h.Color.B, h.Color.A)
@@ -21,7 +21,7 @@ func drawTextBoxLike(renderer *sdl.Renderer, rect sdl.FRect, color sdl.Color, te
 	// Initialise TTF si ce n'est pas déjà fait
 
 	// Crée la surface du texte
-	surface := ttf.RenderTextBlended(font, text, uint64(len(text)), textColor)
+	surface := ttf.RenderTextBlendedWrapped(font, text, uint64(len(text)), textColor, int32(rect.W))
 	if surface == nil {
 		return
 	}
@@ -53,19 +53,26 @@ func (b *Button) Draw(renderer *sdl.Renderer) {
 	drawTextBoxLike(renderer, b.Rect, b.Color, b.Text, b.TextColor, b.Font)
 }
 
-func GetDefaultFont() *ttf.Font {
+func GetDefaultFont(size float32) *ttf.Font {
+	// stock une font par taille passé en parametre
 	if ttf.WasInit() == 0 {
 		ttf.Init()
 	}
-	// TODO : get font from config, dislexy font
-	if font != nil {
-		return font
+	size = GetDefaultFontSize(size)
+	if f, ok := fontCache[size]; ok && f != nil {
+		return f
 	}
-	font = ttf.OpenFont("assets/fonts/arial.ttf", GetDefaultFontSize())
+	font := ttf.OpenFont("assets/fonts/D2CodingLigatureNerdFontMono-Regular.ttf", size)
+	if font != nil {
+		fontCache[size] = font
+	}
 	return font
 }
 
-func GetDefaultFontSize() float32 {
-	// TODO : get font size from config
-	return 24
+func GetDefaultFontSize(size float32) float32 {
+	// pour que 1 et 0 soit une valeur par defaut
+	if size < 2 {
+		return 18
+	}
+	return size
 }

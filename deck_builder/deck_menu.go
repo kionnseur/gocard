@@ -16,7 +16,7 @@ var (
 	scrollLevel float32 = 0.0
 	deck        data.Deck
 	lastDeckId  string
-	font        = ui.GetDefaultFont()
+	font        = ui.GetDefaultFont(24)
 )
 
 // Déclare le HUD de la listview à l'extérieur

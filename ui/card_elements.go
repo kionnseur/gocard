@@ -18,7 +18,6 @@ type UIMonsterCard struct {
 	Font *ttf.Font
 }
 
-// GetRect implements UICard.
 func (m *UIMonsterCard) GetRect() sdl.FRect {
 	return m.Rect
 }
@@ -31,7 +30,7 @@ func (m *UIMonsterCard) Draw(renderer *sdl.Renderer) {
 		Text:      m.Card.GetName(),
 		Rect:      sdl.FRect{X: m.Rect.X + 5, Y: m.Rect.Y + 5, W: m.Rect.W - 10, H: 20},
 		Color:     sdl.Color{R: 150, G: 150, B: 150, A: 150},
-		Font:      GetDefaultFont(),
+		Font:      GetDefaultFont(20),
 		TextColor: sdl.Color{R: 0, G: 0, B: 0, A: 255},
 	}
 	nameBox.Draw(renderer)

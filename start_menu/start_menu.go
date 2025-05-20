@@ -37,7 +37,7 @@ func RenderStartMenu(renderer *sdl.Renderer) ui.AppState {
 }
 
 func getStartMenuButtons() []ui.Button {
-	font := ui.GetDefaultFont()
+	font := ui.GetDefaultFont(24)
 
 	return []ui.Button{
 		{

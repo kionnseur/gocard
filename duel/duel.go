@@ -81,7 +81,7 @@ func getDuelElements() []ui.Element {
 		Deck:            40,
 	}
 
-	font := ui.GetDefaultFont()
+	font := ui.GetDefaultFont(24)
 	leftPlayerHud := getleftPlayerHud(font, player)
 	rightPlayerHud := getRightPlayerHud(font, player)
 
