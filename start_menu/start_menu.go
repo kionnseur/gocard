@@ -4,7 +4,6 @@ import (
 	"gocard/ui"
 
 	"github.com/jupiterrider/purego-sdl3/sdl"
-	"github.com/jupiterrider/purego-sdl3/ttf"
 )
 
 func RenderStartMenu(renderer *sdl.Renderer) ui.AppState {
@@ -38,9 +37,7 @@ func RenderStartMenu(renderer *sdl.Renderer) ui.AppState {
 }
 
 func getStartMenuButtons() []ui.Button {
-	ttf.Init()
-
-	font := ttf.OpenFont("assets/fonts/arial.ttf", 24)
+	font := ui.GetDefaultFont()
 
 	return []ui.Button{
 		{

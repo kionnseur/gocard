@@ -5,7 +5,6 @@ import (
 	"gocard/ui"
 
 	"github.com/jupiterrider/purego-sdl3/sdl"
-	"github.com/jupiterrider/purego-sdl3/ttf"
 )
 
 const (
@@ -17,7 +16,7 @@ var (
 	scrollLevel float32 = 0.0
 	deck        data.Deck
 	lastDeckId  string
-	_, font     = ttf.Init(), ttf.OpenFont("assets/fonts/arial.ttf", fontSize)
+	font        = ui.GetDefaultFont()
 )
 
 // Déclare le HUD de la listview à l'extérieur

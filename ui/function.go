@@ -5,9 +5,7 @@ import (
 	"github.com/jupiterrider/purego-sdl3/ttf"
 )
 
-type Element interface {
-	Draw(renderer *sdl.Renderer)
-}
+var font *ttf.Font
 
 func (h *Hud) Draw(renderer *sdl.Renderer) {
 	sdl.SetRenderDrawColor(renderer, h.Color.R, h.Color.G, h.Color.B, h.Color.A)
@@ -21,11 +19,6 @@ func drawTextBoxLike(renderer *sdl.Renderer, rect sdl.FRect, color sdl.Color, te
 	sdl.RenderFillRect(renderer, &rect)
 	sdl.SetRenderDrawColor(renderer, textColor.R, textColor.G, textColor.B, textColor.A)
 	// Initialise TTF si ce n'est pas déjà fait
-	if ttf.WasInit() == 0 {
-		if ttf.Init() {
-			return
-		}
-	}
 
 	// Crée la surface du texte
 	surface := ttf.RenderTextBlended(font, text, uint64(len(text)), textColor)
@@ -58,4 +51,21 @@ func (t *TextBox) Draw(renderer *sdl.Renderer) {
 
 func (b *Button) Draw(renderer *sdl.Renderer) {
 	drawTextBoxLike(renderer, b.Rect, b.Color, b.Text, b.TextColor, b.Font)
+}
+
+func GetDefaultFont() *ttf.Font {
+	if ttf.WasInit() == 0 {
+		ttf.Init()
+	}
+	// TODO : get font from config, dislexy font
+	if font != nil {
+		return font
+	}
+	font = ttf.OpenFont("assets/fonts/arial.ttf", GetDefaultFontSize())
+	return font
+}
+
+func GetDefaultFontSize() float32 {
+	// TODO : get font size from config
+	return 24
 }

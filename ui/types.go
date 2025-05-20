@@ -20,6 +20,10 @@ type AppState struct {
 	Data map[string]string
 }
 
+type Element interface {
+	Draw(renderer *sdl.Renderer)
+}
+
 type Hud struct {
 	Element
 	Rect  sdl.FRect
@@ -41,9 +45,4 @@ type Button struct {
 	TextColor sdl.Color
 	Font      *ttf.Font
 	OnClick   func() AppState
-}
-
-func GetDefaultFont() *ttf.Font {
-	font := ttf.OpenFont("assets/arial.ttf", 24)
-	return font
 }

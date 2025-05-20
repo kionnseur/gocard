@@ -81,10 +81,7 @@ func getDuelElements() []ui.Element {
 		Deck:            40,
 	}
 
-	ttf.Init()
-
-	font := ttf.OpenFont("assets/fonts/arial.ttf", 24)
-
+	font := ui.GetDefaultFont()
 	leftPlayerHud := getleftPlayerHud(font, player)
 	rightPlayerHud := getRightPlayerHud(font, player)
 
