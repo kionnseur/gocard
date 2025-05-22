@@ -14,7 +14,7 @@ const (
 
 var (
 	scrollLevel float32 = 0.0
-	deck        data.Deck
+	deck        *data.Deck
 	lastDeckId  string
 	font        = ui.GetDefaultFont(24)
 )
@@ -54,7 +54,7 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState ui.AppS
 				e.Draw(renderer)
 			}
 		} else if action == "edit" {
-			return RenderDeckEditor(renderer, window, deck)
+			return ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": deck.ID, "action": "edit"}}
 		} else if action == "delete" && deck.ID != "" {
 			data.DeleteDeckById(deck.ID)
 			// Réinitialise l'état pour revenir à la liste
@@ -185,7 +185,7 @@ func uiGetDeckListElements(decksList []data.Deck) []ui.Element {
 	return elements
 }
 
-func uiGetDeckInfo(deck data.Deck) ([]ui.Element, []ui.Button) {
+func uiGetDeckInfo(deck *data.Deck) ([]ui.Element, []ui.Button) {
 
 	offset := listViewHud.Rect.X + gap + listViewHud.Rect.W
 	// affiche le nom des 3 premiere cartes du deck

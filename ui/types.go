@@ -25,7 +25,6 @@ type Element interface {
 }
 
 type Hud struct {
-	Element
 	Rect  sdl.FRect
 	Color sdl.Color
 }

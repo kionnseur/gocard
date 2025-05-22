@@ -45,14 +45,14 @@ func GetDeckList() []Deck {
 	return deckList
 }
 
-func GetDeckById(id string) Deck {
+func GetDeckById(id string) *Deck {
 	deckListOnce.Do(loadDeckList)
-	for _, deck := range deckList {
-		if deck.ID == id {
-			return deck
+	for i := range deckList {
+		if deckList[i].ID == id {
+			return &deckList[i]
 		}
 	}
-	return Deck{}
+	return nil
 }
 
 func DeleteDeckById(id string) {
