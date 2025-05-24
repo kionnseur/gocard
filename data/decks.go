@@ -12,6 +12,7 @@ var (
 )
 
 func loadDeckList() {
+	// Génère les decks par défaut en mémoire
 	count := 20
 	cards := make([]Card, 0, count)
 	for i := 0; i < count; i++ {
@@ -29,15 +30,6 @@ func loadDeckList() {
 	for i := 0; i < 30; i++ {
 		deckList = append(deckList, debug_create_random_deck())
 	}
-
-	// file, err := os.Open("decks.json")
-	// if err != nil {
-	// 	deckList = []Deck{}
-	// 	return
-	// }
-	// defer file.Close()
-	// json.NewDecoder(file).Decode(&deckList)
-
 }
 
 func GetDeckList() []Deck {
@@ -66,7 +58,6 @@ func DeleteDeckById(id string) {
 }
 
 func DuplicateDeckById(id string) {
-	// duplique et ajoute le deck à la liste juste en dessous du deck d'origine
 	deckListOnce.Do(loadDeckList)
 
 	for i, deck := range deckList {
@@ -79,8 +70,8 @@ func DuplicateDeckById(id string) {
 		}
 	}
 }
+
 func SaveDeck(deck Deck) {
-	//si le deck existe deja, on le remplace
 	deckListOnce.Do(loadDeckList)
 	for i, d := range deckList {
 		if d.ID == deck.ID {
@@ -112,18 +103,3 @@ func debug_create_random_deck() Deck {
 	}
 }
 
-func debug_create_random_card() Card {
-	// retourne une carte random
-	// avec un nom random
-	id := "" + strconv.Itoa(rand.Intn(1000))
-	randomName := "Card " + id
-	return &MonsterCard{
-		ID:          id,
-		Name:        randomName,
-		Image:       "card" + id + ".png",
-		Description: "Description " + id,
-		Level:       rand.Intn(10) + 1,
-		Attack:      rand.Intn(1000),
-		Defense:     rand.Intn(1000),
-	}
-}

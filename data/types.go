@@ -27,13 +27,14 @@ func (d *Deck) CountCard(selectedCard Card) int {
 }
 
 type Card interface {
+	GetId() int
 	GetName() string
 	GetImage() string
 	GetDescription() string
 }
 
 type MonsterCard struct {
-	ID          string
+	ID          int
 	Name        string
 	Image       string
 	Description string
@@ -43,10 +44,14 @@ type MonsterCard struct {
 }
 
 type SpellTrapCard struct {
-	ID          string
+	ID          int
 	Name        string
 	Image       string
 	Description string
+}
+
+func (m *MonsterCard) GetId() int {
+	return m.ID
 }
 
 func (m *MonsterCard) GetName() string {
@@ -66,4 +71,8 @@ func (s *SpellTrapCard) GetImage() string {
 }
 func (s *SpellTrapCard) GetDescription() string {
 	return s.Description
+}
+
+func (s *SpellTrapCard) GetId() int {
+	return s.ID
 }

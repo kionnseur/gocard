@@ -21,6 +21,7 @@ type AppState struct {
 }
 
 type Element interface {
+	GetRect() *sdl.FRect
 	Draw(renderer *sdl.Renderer)
 }
 

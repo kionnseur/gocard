@@ -76,3 +76,15 @@ func GetDefaultFontSize(size float32) float32 {
 	}
 	return size
 }
+
+func (e *Hud) GetRect() *sdl.FRect {
+	return &e.Rect
+}
+
+func (e *TextBox) GetRect() *sdl.FRect {
+	return &e.Rect
+}
+
+func (e *Button) GetRect() *sdl.FRect {
+	return &e.Rect
+}

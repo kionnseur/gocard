@@ -7,7 +7,7 @@ import (
 )
 
 type UICard interface {
-	GetRect() sdl.FRect
+	GetRect() *sdl.FRect
 	GetCard() data.Card
 	Element
 }
@@ -28,7 +28,7 @@ func (m *UIMonsterCard) GetImage() string { return m.Card.Image }
 
 func (m *UIMonsterCard) GetName() string { return m.Card.Name }
 
-func (m *UIMonsterCard) GetRect() sdl.FRect { return m.Rect }
+func (m *UIMonsterCard) GetRect() *sdl.FRect { return &m.Rect }
 
 func (m *UIMonsterCard) Draw(renderer *sdl.Renderer) {
 	sdl.SetRenderDrawColor(renderer, 255, 255, 255, 255)
@@ -46,11 +46,11 @@ func (m *UIMonsterCard) Draw(renderer *sdl.Renderer) {
 
 type UISpellTrapCard struct {
 	Rect sdl.FRect
-	Card data.SpellTrapCard
+	Card *data.SpellTrapCard
 }
 
 // GetCard implements UICard.
-func (m *UISpellTrapCard) GetCard() data.Card { return &m.Card }
+func (m *UISpellTrapCard) GetCard() data.Card { return m.Card }
 
 func (m *UISpellTrapCard) GetDescription() string { return m.Card.Description }
 
@@ -58,7 +58,7 @@ func (m *UISpellTrapCard) GetImage() string { return m.Card.Image }
 
 func (m *UISpellTrapCard) GetName() string { return m.Card.Name }
 
-func (m *UISpellTrapCard) GetRect() sdl.FRect { return m.Rect }
+func (m *UISpellTrapCard) GetRect() *sdl.FRect { return &m.Rect }
 
 func (m *UISpellTrapCard) Draw(renderer *sdl.Renderer) {
 	sdl.SetRenderDrawColor(renderer, 255, 255, 255, 255)
@@ -84,7 +84,7 @@ func CreateUICard(card data.Card, rect sdl.FRect) UICard {
 	if c, ok := card.(*data.SpellTrapCard); ok {
 		return &UISpellTrapCard{
 			Rect: rect,
-			Card: *c,
+			Card: c,
 		}
 	}
 	return nil

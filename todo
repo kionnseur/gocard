@@ -10,8 +10,9 @@
 
 - deck_editor
 - Terminer la fonction Draw des cartes
-- Afficher la liste des cartes à droite
++ Afficher la liste des cartes à droite
 - Filtre sur les cartes à droite
+- Trie des cartes à droite
 - Bouton Ajouter/Retirer en dessous des infos de la carte sélectionnée à gauche
 - double clic pour ajouter/retirer
 
