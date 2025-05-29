@@ -7,12 +7,6 @@ import (
 
 var fontCache = map[float32]*ttf.Font{}
 
-func (h *Hud) Draw(renderer *sdl.Renderer) {
-	sdl.SetRenderDrawColor(renderer, h.Color.R, h.Color.G, h.Color.B, h.Color.A)
-	sdl.RenderFillRect(renderer, &h.Rect)
-
-}
-
 func drawTextBoxLike(renderer *sdl.Renderer, rect sdl.FRect, color sdl.Color, text string, textColor sdl.Color, font *ttf.Font) {
 	// Dessine le rectangle
 	sdl.SetRenderDrawColor(renderer, color.R, color.G, color.B, color.A)
@@ -45,14 +39,6 @@ func drawTextBoxLike(renderer *sdl.Renderer, rect sdl.FRect, color sdl.Color, te
 	sdl.RenderTexture(renderer, texture, nil, &dstRect)
 }
 
-func (t *TextBox) Draw(renderer *sdl.Renderer) {
-	drawTextBoxLike(renderer, t.Rect, t.Color, t.Text, t.TextColor, t.Font)
-}
-
-func (b *Button) Draw(renderer *sdl.Renderer) {
-	drawTextBoxLike(renderer, b.Rect, b.Color, b.Text, b.TextColor, b.Font)
-}
-
 func GetDefaultFont(size float32) *ttf.Font {
 	// stock une font par taille passé en parametre
 	if ttf.WasInit() == 0 {
@@ -77,14 +63,100 @@ func GetDefaultFontSize(size float32) float32 {
 	return size
 }
 
+// /////////////
+// HUD
+// /////////////
+func (h *Hud) Draw(renderer *sdl.Renderer) {
+	sdl.SetRenderDrawColor(renderer, h.Color.R, h.Color.G, h.Color.B, h.Color.A)
+	sdl.RenderFillRect(renderer, &h.Rect)
+}
 func (e *Hud) GetRect() *sdl.FRect {
 	return &e.Rect
+}
+
+// /////////////
+// TextBox
+// /////////////
+func (t *TextBox) Draw(renderer *sdl.Renderer) {
+	drawTextBoxLike(renderer, t.Rect, t.Color, t.Text, t.TextColor, t.Font)
 }
 
 func (e *TextBox) GetRect() *sdl.FRect {
 	return &e.Rect
 }
 
+// /////////////
+// Button
+// /////////////
+func (b *Button) Draw(renderer *sdl.Renderer) {
+	drawTextBoxLike(renderer, b.Rect, b.Color, b.Text, b.TextColor, b.Font)
+}
+
 func (e *Button) GetRect() *sdl.FRect {
 	return &e.Rect
+}
+
+// /////////////
+// UIScrollableStackView
+// /////////////
+func (e *UIScrollableStackView) GetRect() *sdl.FRect {
+	return &e.Rect
+}
+
+func (e *UIScrollableStackView) Draw(renderer *sdl.Renderer) {
+	sdl.SetRenderDrawColor(renderer, e.Color.R, e.Color.G, e.Color.B, e.Color.A)
+	sdl.RenderFillRect(renderer, &e.Rect)
+	for _, elem := range e.Elements {
+		rect := elem.GetRect()
+		tmpRect := *rect
+		tmpRect.Y -= e.ScrollY
+		// Test de visibilité
+		if tmpRect.Y+tmpRect.H > e.Rect.Y && tmpRect.Y < e.Rect.Y+e.Rect.H {
+			original := *rect
+			*rect = tmpRect
+			elem.Draw(renderer)
+			*rect = original
+		}
+	}
+}
+
+// /////////////
+// UIScrollableGridView
+// /////////////
+
+func (e *UIScrollableGridView) GetRect() *sdl.FRect {
+	return &e.Rect
+}
+func (e *UIScrollableGridView) Draw(renderer *sdl.Renderer) {
+	e.SetElementsPosition(&e.Rect)
+
+	sdl.SetRenderDrawColor(renderer, e.Color.R, e.Color.G, e.Color.B, e.Color.A)
+	sdl.RenderFillRect(renderer, &e.Rect)
+
+	for _, elem := range e.Elements {
+		rect := elem.GetRect()
+		rect.Y -= e.ScrollY
+
+		if rect.Y+rect.H > e.Rect.Y && rect.Y < e.Rect.Y+e.Rect.H {
+			elem.Draw(renderer)
+		}
+	}
+}
+
+func (e *UIScrollableGridView) SetElementsPosition(parent *sdl.FRect) {
+	cfg := e.GridConfig
+	maxColCards := int((e.Rect.W + cfg.CardGap) / (cfg.CardWidth + cfg.CardGap))
+	startX := e.Rect.X + (e.Rect.W-float32(maxColCards)*(cfg.CardWidth+cfg.CardGap)+cfg.CardGap)/2
+	y := e.Rect.Y + cfg.CardGap
+	for i, elem := range e.Elements {
+		x := startX + float32(i%maxColCards)*(cfg.CardWidth+cfg.CardGap)
+		if i%maxColCards == 0 && i != 0 {
+			y += cfg.CardHeight + cfg.CardGap
+		}
+		rect := elem.GetRect()
+		rect.X = x
+		rect.Y = y
+		rect.W = cfg.CardWidth
+		rect.H = cfg.CardHeight
+	}
 }

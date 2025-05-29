@@ -13,17 +13,17 @@ const (
 )
 
 var (
-	scrollLevelDeckList float32 = 0.0
-	deck                *data.Deck
-	lastDeckId          string
-	font                = ui.GetDefaultFont(24)
-)
+	deck       *data.Deck
+	lastDeckId string
+	font       = ui.GetDefaultFont(24)
 
-// Déclare le HUD de la listview à l'extérieur
-var scrollableLVHDeckList = &ui.Hud{
-	Rect:  sdl.FRect{X: gap, Y: 80, W: 200, H: float32(data.ScreenHeight) - gap},
-	Color: sdl.Color{R: 100, G: 100, B: 100, A: 50},
-}
+	scrollableLVHDeckList = &ui.UIScrollableStackView{
+		Rect:        sdl.FRect{X: gap, Y: 80, W: 200, H: float32(data.ScreenHeight) - gap - 80}, // 80 pour le Y
+		Color:       sdl.Color{R: 100, G: 100, B: 100, A: 50},
+		ScrollY:     0,
+		ScrollSpeed: 15,
+	}
+)
 
 func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState ui.AppState) ui.AppState {
 	var buttons []ui.Button
@@ -31,8 +31,19 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState ui.AppS
 	var uiDeckInfo []ui.Element
 
 	// boutons de la liste des decks
-	uiDeckListElements := uiGetDeckListElements(data.GetDeckList())
-
+	uiDeckListElements := uiGetDeckListElements(data.GetDeckList(), scrollableLVHDeckList.GetRect())
+	scrollableLVHDeckList.Elements = uiDeckListElements
+	scrollableLVHDeckList.OnScroll = func(event *sdl.Event) {
+		y := event.Wheel().Y
+		scrollableLVHDeckList.ScrollY -= float32(y) * gap
+		if scrollableLVHDeckList.ScrollY < 0 {
+			scrollableLVHDeckList.ScrollY = 0
+		}
+		maxScroll := float32(len(uiDeckListElements))*35 - scrollableLVHDeckList.Rect.H
+		if scrollableLVHDeckList.ScrollY > maxScroll {
+			scrollableLVHDeckList.ScrollY = maxScroll
+		}
+	}
 	for {
 		sdl.GetWindowSize(window, &data.ScreenWidth, &data.ScreenHeight)
 		sdl.SetRenderDrawColor(renderer, 255, 165, 0, 255)
@@ -46,7 +57,7 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState ui.AppS
 		}
 		// supprime avant d'afficher la liste
 		if action == "ask" {
-			uiDeckInfo, uiDeckInfoBtn = uiGetDeckInfo(deck)
+			uiDeckInfo, uiDeckInfoBtn = uiGetDeckInfo(deck, scrollableLVHDeckList.GetRect())
 			for _, e := range uiDeckInfo {
 				e.Draw(renderer)
 			}
@@ -59,31 +70,19 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState ui.AppS
 			data.DeleteDeckById(deck.ID)
 			// Réinitialise l'état pour revenir à la liste
 			appState.Data["action"] = ""
-			uiDeckListElements = uiGetDeckListElements(data.GetDeckList())
+			uiDeckListElements = uiGetDeckListElements(data.GetDeckList(), scrollableLVHDeckList.GetRect())
 		} else if action == "duplicate" && deck.ID != "" {
 			data.DuplicateDeckById(deck.ID)
 			appState.Data["action"] = ""
-			uiDeckListElements = uiGetDeckListElements(data.GetDeckList())
+			uiDeckListElements = uiGetDeckListElements(data.GetDeckList(), scrollableLVHDeckList.GetRect())
 		}
 
 		// Affiche la liste des decks, colonne de gauche et btn retour
 		scrollableLVHDeckList.Rect.H = float32(data.ScreenHeight) - gap - scrollableLVHDeckList.Rect.Y
+
 		scrollableLVHDeckList.Draw(renderer)
 
-		// Dessine les éléments de la liste, scroll/clipping selon le HUD
-		for _, e := range uiDeckListElements {
-			if btn, ok := e.(*ui.Button); ok {
-				rect := btn.Rect
-				rect.Y -= scrollLevelDeckList
-				if rect.Y+rect.H > scrollableLVHDeckList.Rect.Y && rect.Y < scrollableLVHDeckList.Rect.Y+scrollableLVHDeckList.Rect.H {
-					tmp := *btn
-					tmp.Rect = rect
-					tmp.Draw(renderer)
-				}
-			}
-		}
-
-		buttons = getDeckMenuButtons()
+		buttons = getDeckMenuButtons(scrollableLVHDeckList.GetRect())
 		for _, btn := range buttons {
 			btn.Draw(renderer)
 		}
@@ -108,7 +107,7 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState ui.AppS
 				for _, e := range uiDeckListElements {
 					if btn, ok := e.(*ui.Button); ok {
 						rect := btn.Rect
-						rect.Y -= scrollLevelDeckList
+						rect.Y -= scrollableLVHDeckList.ScrollY
 						if x > rect.X && x < rect.X+rect.W &&
 							y > rect.Y && y < rect.Y+rect.H {
 							return btn.OnClick()
@@ -126,25 +125,19 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState ui.AppS
 				}
 
 			case sdl.EventMouseWheel:
-				y := event.Wheel().Y
-				scrollLevelDeckList -= float32(y) * gap
-				if scrollLevelDeckList < 0 {
-					scrollLevelDeckList = 0
-				}
-				maxScroll := float32(len(uiDeckListElements))*35 - scrollableLVHDeckList.Rect.H
-				if scrollLevelDeckList > maxScroll {
-					scrollLevelDeckList = maxScroll
+				if scrollableLVHDeckList.OnScroll != nil {
+					scrollableLVHDeckList.OnScroll(&event)
 				}
 			}
 		}
 	}
 }
 
-func getDeckMenuButtons() []ui.Button {
+func getDeckMenuButtons(parent *sdl.FRect) []ui.Button {
 
 	return []ui.Button{
 		{
-			Rect:      sdl.FRect{X: scrollableLVHDeckList.Rect.X, Y: scrollableLVHDeckList.Rect.Y - 30, W: 200, H: 30},
+			Rect:      sdl.FRect{X: parent.X, Y: parent.Y - 30, W: 200, H: 30},
 			Color:     sdl.Color{R: 0, G: 0, B: 0, A: 100},
 			Text:      "Nouveau Deck",
 			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
@@ -164,13 +157,13 @@ func getDeckMenuButtons() []ui.Button {
 	}
 }
 
-func uiGetDeckListElements(decksList []data.Deck) []ui.Element {
+func uiGetDeckListElements(decksList []data.Deck, parent *sdl.FRect) []ui.Element {
 	// Crée une liste d'éléments de type Button représentent chaque deck
 	elements := make([]ui.Element, len(decksList))
 	for i, deck := range decksList {
 		var r, g, b = ui.ColorBreathSin(i * 10)
 		elements[i] = &ui.Button{
-			Rect:      sdl.FRect{X: scrollableLVHDeckList.Rect.X, Y: scrollableLVHDeckList.Rect.Y + float32(i*35), W: scrollableLVHDeckList.Rect.W, H: 30},
+			Rect:      sdl.FRect{X: parent.X, Y: parent.Y + float32(i*35), W: parent.W, H: 30},
 			Color:     sdl.Color{R: r, G: g, B: b, A: 255},
 			Text:      deck.Name,
 			TextColor: sdl.Color{R: 255 - r, G: 255 - g, B: 255 - b, A: 255},
@@ -183,9 +176,9 @@ func uiGetDeckListElements(decksList []data.Deck) []ui.Element {
 	return elements
 }
 
-func uiGetDeckInfo(deck *data.Deck) ([]ui.Element, []ui.Button) {
+func uiGetDeckInfo(deck *data.Deck, parent *sdl.FRect) ([]ui.Element, []ui.Button) {
 
-	offset := scrollableLVHDeckList.Rect.X + gap + scrollableLVHDeckList.Rect.W
+	offset := parent.X + gap + parent.W
 	// affiche le nom des 3 premiere cartes du deck
 
 	elements := make([]ui.Element, 3)
@@ -224,7 +217,7 @@ func uiGetDeckInfo(deck *data.Deck) ([]ui.Element, []ui.Button) {
 			},
 		},
 		{
-			Rect:      sdl.FRect{X: offset, Y: float32(10 * 35), W: scrollableLVHDeckList.Rect.W, H: 30},
+			Rect:      sdl.FRect{X: offset, Y: float32(10 * 35), W: parent.W, H: 30},
 			Color:     sdl.Color{R: 200, G: 100, B: 100, A: 255},
 			Text:      "Supprimer",
 			TextColor: sdl.Color{R: 55, G: 155, B: 155, A: 255},

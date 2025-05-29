@@ -46,3 +46,27 @@ type Button struct {
 	Font      *ttf.Font
 	OnClick   func() AppState
 }
+
+type UIScrollableStackView struct {
+	Rect        sdl.FRect
+	Color       sdl.Color
+	ScrollY     float32
+	ScrollSpeed float32
+	Elements    []Element
+	OnScroll    func(event *sdl.Event)
+}
+type UIScrollableGridView struct {
+	Rect        sdl.FRect
+	Color       sdl.Color
+	ScrollY     float32
+	ScrollSpeed float32
+	Elements    []Element
+	OnScroll    func(event *sdl.Event)
+	GridConfig  GridConfig 
+}
+
+type GridConfig struct {
+	CardWidth  float32
+	CardHeight float32
+	CardGap    float32
+}
