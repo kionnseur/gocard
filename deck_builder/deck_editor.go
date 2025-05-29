@@ -167,36 +167,6 @@ func getLeftColumnUI() []ui.Element {
 			TextColor: sdl.Color{R: 255, G: 0, B: 0, A: 255},
 			Font:      ui.GetDefaultFont(20),
 		}
-		elements[2] = &ui.Button{
-			Rect:      sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 50, W: cardWidth, H: 30},
-			Color:     sdl.Color{R: 20, G: 20, B: 20, A: 100},
-			Text:      "Retirer du deck",
-			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
-			Font:      ui.GetDefaultFont(20),
-			OnClick: func() ui.AppState {
-				selectedDeck.RemoveCard(selectedCard)
-				return ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": selectedDeck.ID}}
-			},
-		}
-	} else if selectedDeck.CountCard(selectedCard) == 0 {
-		elements[1] = &ui.Button{
-			Rect:      sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 10, W: cardWidth, H: 30},
-			Color:     sdl.Color{R: 20, G: 20, B: 20, A: 100},
-			Text:      "Ajouter au deck",
-			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
-			Font:      ui.GetDefaultFont(20),
-			OnClick: func() ui.AppState {
-				selectedDeck.Cards = append(selectedDeck.Cards, selectedCard)
-				return ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": selectedDeck.ID}}
-			},
-		}
-		elements[2] = &ui.TextBox{
-			Rect:      sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 50, W: cardWidth, H: 30},
-			Color:     sdl.Color{R: 80, G: 80, B: 80, A: 255},
-			Text:      "Retirer du deck",
-			TextColor: sdl.Color{R: 255, G: 0, B: 0, A: 255},
-			Font:      ui.GetDefaultFont(20),
-		}
 	} else {
 		elements[1] = &ui.Button{
 			Rect:      sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 10, W: cardWidth, H: 30},
@@ -209,6 +179,18 @@ func getLeftColumnUI() []ui.Element {
 				return ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": selectedDeck.ID}}
 			},
 		}
+	}
+	if selectedDeck.CountCard(selectedCard) == 0 {
+
+		elements[2] = &ui.TextBox{
+			Rect:      sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 50, W: cardWidth, H: 30},
+			Color:     sdl.Color{R: 80, G: 80, B: 80, A: 255},
+			Text:      "Retirer du deck",
+			TextColor: sdl.Color{R: 255, G: 0, B: 0, A: 255},
+			Font:      ui.GetDefaultFont(20),
+		}
+	} else {
+
 		elements[2] = &ui.Button{
 			Rect:      sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 50, W: cardWidth, H: 30},
 			Color:     sdl.Color{R: 20, G: 20, B: 20, A: 100},
