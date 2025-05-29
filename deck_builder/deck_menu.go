@@ -105,12 +105,14 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState ui.AppS
 				}
 				// liste de deck
 				for _, e := range uiDeckListElements {
-					if btn, ok := e.(*ui.Button); ok {
-						rect := btn.Rect
-						rect.Y -= scrollableLVHDeckList.ScrollY
-						if x > rect.X && x < rect.X+rect.W &&
-							y > rect.Y && y < rect.Y+rect.H {
-							return btn.OnClick()
+					if y > scrollableLVHDeckList.Rect.Y && y < scrollableLVHDeckList.Rect.Y+scrollableLVHDeckList.Rect.H {
+						if btn, ok := e.(*ui.Button); ok {
+							rect := btn.Rect
+							rect.Y -= scrollableLVHDeckList.ScrollY
+							if x > rect.X && x < rect.X+rect.W &&
+								y > rect.Y && y < rect.Y+rect.H {
+								return btn.OnClick()
+							}
 						}
 					}
 				}

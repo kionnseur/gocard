@@ -100,25 +100,28 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, deck_id string
 			case sdl.EventQuit:
 				return ui.AppState{State: ui.StateQuit}
 			case sdl.EventMouseButtonDown:
+				x, y := event.Button().X, event.Button().Y
 				// check les btn de la colonne de gauche
 				for _, btn := range uiLeftColumn {
-					if btn, ok := btn.(*ui.Button); ok && event.Button().X > btn.Rect.X && event.Button().X < btn.Rect.X+btn.Rect.W &&
-						event.Button().Y > btn.Rect.Y && event.Button().Y < btn.Rect.Y+btn.Rect.H {
+					if btn, ok := btn.(*ui.Button); ok && x > btn.Rect.X && x < btn.Rect.X+btn.Rect.W &&
+						y > btn.Rect.Y && y < btn.Rect.Y+btn.Rect.H {
 						return btn.OnClick()
 					}
 				}
 				//si clique sur une carte, on la selectionne
 				for _, uiCard := range uiCenterColumn {
-					if event.Button().X > uiCard.GetRect().X && event.Button().X < uiCard.GetRect().X+uiCard.GetRect().W &&
-						event.Button().Y > uiCard.GetRect().Y && event.Button().Y < uiCard.GetRect().Y+uiCard.GetRect().H {
+					if x > uiCard.GetRect().X && x < uiCard.GetRect().X+uiCard.GetRect().W &&
+						y > uiCard.GetRect().Y && y < uiCard.GetRect().Y+uiCard.GetRect().H {
 						selectedCard = uiCard.GetCard()
 					}
 				}
 				// check les cartes de la colonne de droite
 				for _, uiCard := range uiRightColumn {
-					if event.Button().X > uiCard.GetRect().X && event.Button().X < uiCard.GetRect().X+uiCard.GetRect().W &&
-						event.Button().Y > uiCard.GetRect().Y && event.Button().Y < uiCard.GetRect().Y+uiCard.GetRect().H {
-						selectedCard = uiCard.GetCard()
+					if y > scrollableLVHRightColumn.Rect.Y && y < scrollableLVHRightColumn.Rect.Y+scrollableLVHRightColumn.Rect.H {
+						if x > uiCard.GetRect().X && x < uiCard.GetRect().X+uiCard.GetRect().W &&
+							y > uiCard.GetRect().Y && y < uiCard.GetRect().Y+uiCard.GetRect().H {
+							selectedCard = uiCard.GetCard()
+						}
 					}
 				}
 			case sdl.EventMouseWheel:
