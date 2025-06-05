@@ -9,12 +9,14 @@ import (
 )
 
 var (
-	selectedCard data.Card
-	selectedDeck *data.Deck
-	cardWidth    float32 = 100
-	cardHeight   float32 = 150
-	cardGap      float32 = 10
-	maxColCards  int
+	selectedCard   data.Card
+	selectedDeck   *data.Deck
+	playerCardDict map[int]int
+
+	cardWidth   float32 = 100
+	cardHeight  float32 = 150
+	cardGap     float32 = 10
+	maxColCards int
 )
 
 // Déclare le HUD de la listview à l'extérieur
@@ -33,13 +35,10 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, deck_id string
 	selectedDeck = data.GetDeckById(deck_id)
 
 	playerCardDict := data.GetPlayerCards()
-
-	playerCards := make([]data.Card, 0, len(playerCardDict))
-	for cardId, count := range playerCardDict {
-		for i := 0; i < count; i++ {
-			playerCards = append(playerCards, data.GetAllCards()[cardId])
-		}
-	}
+	playerUICards := getPlayerCardListUI(playerCardDict)
+	slices.SortFunc(playerUICards, func(a, b ui.UICard) int {
+		return a.GetCard().GetId() - b.GetCard().GetId()
+	})
 
 	for {
 		sdl.GetWindowSize(window, &data.ScreenWidth, &data.ScreenHeight)
@@ -54,12 +53,9 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, deck_id string
 		//colonne scrollable de droite
 		rec := UIColumn[2].GetRect()
 		scrollableLVHRightColumn.Rect = sdl.FRect{X: rec.X + gap/2, Y: rec.Y + 3*gap, W: UIColumn[2].GetRect().W - gap, H: float32(data.ScreenHeight) - scrollableLVHRightColumn.Rect.Y - gap}
-		slices.SortFunc(playerCards, func(a, b data.Card) int {
-			return a.GetId() - b.GetId()
-		})
-		uiRightColumn := getPlayerCardListUI(playerCards)
-		scrollableLVHRightColumn.Elements = make([]ui.Element, len(uiRightColumn))
-		for i, e := range uiRightColumn {
+
+		scrollableLVHRightColumn.Elements = make([]ui.Element, len(playerUICards))
+		for i, e := range playerUICards {
 			scrollableLVHRightColumn.Elements[i] = e
 		}
 		scrollableLVHRightColumn.OnScroll = func(event *sdl.Event) {
@@ -68,7 +64,7 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, deck_id string
 			if scrollableLVHRightColumn.ScrollY < 0 {
 				scrollableLVHRightColumn.ScrollY = 0
 			}
-			numRows := (len(uiRightColumn) + maxColCards - 1) / maxColCards
+			numRows := (len(playerUICards) + maxColCards - 1) / maxColCards
 			maxScroll := float32(numRows)*(cardHeight+cardGap) - scrollableLVHRightColumn.Rect.H
 			if maxScroll < 0 {
 				maxScroll = 0
@@ -116,7 +112,7 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, deck_id string
 					}
 				}
 				// check les cartes de la colonne de droite
-				for _, uiCard := range uiRightColumn {
+				for _, uiCard := range playerUICards {
 					if y > scrollableLVHRightColumn.Rect.Y && y < scrollableLVHRightColumn.Rect.Y+scrollableLVHRightColumn.Rect.H {
 						if x > uiCard.GetRect().X && x < uiCard.GetRect().X+uiCard.GetRect().W &&
 							y > uiCard.GetRect().Y && y < uiCard.GetRect().Y+uiCard.GetRect().H {
@@ -160,10 +156,15 @@ func getLeftColumnUI() []ui.Element {
 	cardHeight := cardWidth * 1.5
 	cardRect := sdl.FRect{X: float32(2 * data.ScreenWidth / 48), Y: 40, W: cardWidth, H: cardHeight}
 
-	uiCard := ui.CreateUICard(selectedCard, cardRect)
+	uiCard := ui.CreateUICard(selectedCard, cardRect, selectedDeck.CountCard(selectedCard))
 	elements[0] = uiCard
+
+	currentDeckSize := len(selectedDeck.Cards)
+	currentCardCountInDeck := selectedDeck.CountCard(selectedCard)
+	currentPlayerCardCount := playerCardDict[selectedCard.GetId()]
+
 	// est-ce que je gere l'érreur de carte null ?
-	if len(selectedDeck.Cards) >= 40 || selectedDeck.CountCard(selectedCard) >= 3 {
+	if currentDeckSize >= 40 || currentCardCountInDeck >= 3 || currentPlayerCardCount > 3-currentCardCountInDeck {
 		elements[1] = &ui.TextBox{
 			Rect:      sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 10, W: cardWidth, H: 30},
 			Color:     sdl.Color{R: 80, G: 80, B: 80, A: 255},
@@ -184,7 +185,7 @@ func getLeftColumnUI() []ui.Element {
 			},
 		}
 	}
-	if selectedDeck.CountCard(selectedCard) == 0 {
+	if currentCardCountInDeck == 0 {
 
 		elements[2] = &ui.TextBox{
 			Rect:      sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 50, W: cardWidth, H: 30},
@@ -229,20 +230,18 @@ func getDeckCardListUI(centerColRect *sdl.FRect) []ui.UICard {
 			y += cardHeight + cardGap
 		}
 		cardRect := sdl.FRect{X: x, Y: y, W: cardWidth, H: cardHeight}
-		uiCard := ui.CreateUICard(card, cardRect)
+		uiCard := ui.CreateUICard(card, cardRect, deck.CountCard(card))
 		uiCenterColumn = append(uiCenterColumn, uiCard)
 	}
 	return uiCenterColumn
 }
 
-// retourne la liste totale des cartes
-func getPlayerCardListUI(playerCards []data.Card) []ui.UICard {
-
-	elements := make([]ui.UICard, len(playerCards))
-	for i, card := range playerCards {
-
-		elements[i] = ui.CreateUICard(card, sdl.FRect{}) // est set par SetElementsPosition, trouver une autre solution ?
-
+// retourne la liste totale des cartes du joueur à afficher
+func getPlayerCardListUI(playerCardDict map[int]int) []ui.UICard {
+	elements := make([]ui.UICard, 0, len(playerCardDict))
+	for cardId, qty := range playerCardDict {
+		card := data.GetAllCards()[cardId]
+		elements = append(elements, ui.CreateUICard(card, sdl.FRect{}, qty))
 	}
 	return elements
 }

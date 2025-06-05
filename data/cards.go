@@ -20,9 +20,9 @@ func init() {
 }
 
 func loadAllCards() {
-	allCards = make([]Card, 0, 1000)
+	allCards = make([]Card, 1000)
 	for i := 0; i < 1000; i++ {
-		allCards = append(allCards, debug_create_random_card())
+		allCards[i] = debug_create_random_card(i)
 	}
 }
 
@@ -54,10 +54,9 @@ func debug_get_x_random_card(nbr int) []Card {
 	return cards
 }
 
-func debug_create_random_card() Card {
+func debug_create_random_card(id int) Card {
 	// créé une carte random
 	// avec un nom random
-	id := rand.Intn(1000)
 	randomName := "Card " + strconv.Itoa(id)
 	return &MonsterCard{
 		ID:          id,
@@ -68,4 +67,27 @@ func debug_create_random_card() Card {
 		Attack:      rand.Intn(1000),
 		Defense:     rand.Intn(1000),
 	}
+}
+
+func debug_get_random_player_card() Card {
+	// retourne une carte random
+	// avec un nom random
+
+	keyList := mapKeys(GetPlayerCards())
+	size := len(keyList)
+	if size == 0 {
+		return nil
+	}
+
+	randomKey := keyList[rand.Intn(size)]
+	return GetAllCards()[randomKey]
+
+}
+
+func mapKeys(m map[int]int) []int {
+	keys := make([]int, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
 }

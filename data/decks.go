@@ -2,6 +2,7 @@ package data
 
 import (
 	"math/rand"
+	"slices"
 	"strconv"
 	"sync"
 )
@@ -92,14 +93,19 @@ func debug_create_random_deck() Deck {
 	count := 40
 	cards := make([]Card, 0, count)
 	for i := 0; i < count; i++ {
-		cards = append(cards, debug_create_random_card())
+		cards = append(cards, debug_get_random_player_card())
 	}
 	id := "" + strconv.Itoa(rand.Intn(1000))
 	randomName := "Deck " + id
+
+	//sort cards by id
+	slices.SortFunc(cards, func(a, b Card) int {
+		return a.GetId() - b.GetId()
+	})
+
 	return Deck{
 		ID:    id,
 		Name:  randomName,
 		Cards: cards,
 	}
 }
-
