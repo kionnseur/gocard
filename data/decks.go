@@ -7,6 +7,49 @@ import (
 	"sync"
 )
 
+type Deck struct {
+	id    string
+	name  string
+	cards []Card
+}
+
+func (d *Deck) GetName() string {
+	return d.name
+}
+func (d *Deck) GetId() string {
+	return d.id
+}
+func (d *Deck) GetCards() []Card {
+	return d.cards
+}
+func (d *Deck) SetCards(cards []Card) {
+	d.cards = cards
+}
+
+func (d *Deck) RemoveCard(selectedCard Card) {
+	for i, card := range d.cards {
+		if card.GetName() == selectedCard.GetName() {
+			// d.Cards = slices.Delete(d.Cards, i, i+1)
+			d.cards = append(d.cards[:i], d.cards[i+1:]...)
+			break
+		}
+	}
+}
+
+func (d *Deck) CountCard(selectedCard Card) int {
+	count := 0
+	for _, card := range d.cards {
+		if card.GetName() == selectedCard.GetName() {
+			count++
+		}
+	}
+	return count
+}
+
+// ////////////
+// fonctionnel
+// ////////////
+
 var (
 	deckList     []Deck
 	deckListOnce sync.Once
@@ -17,13 +60,13 @@ func loadDeckList() {
 	count := 20
 	cards := make([]Card, 0, count)
 	for i := 0; i < count; i++ {
-		cards = append(cards, &MonsterCard{Name: "Card 1", Image: "card1.png", Description: "Description 1", Level: 1, Attack: 100, Defense: 50})
+		cards = append(cards, &MonsterCard{name: "Card 1", image: "card1.png", description: "Description 1", level: 1, attack: 100, defense: 50})
 	}
 
 	defaultDeck := Deck{
-		ID:    "default",
-		Name:  "Default Deck",
-		Cards: cards,
+		id:    "default",
+		name:  "Default Deck",
+		cards: cards,
 	}
 
 	deckList = make([]Deck, 0, 30)
@@ -41,7 +84,7 @@ func GetDeckList() []Deck {
 func GetDeckById(id string) *Deck {
 	deckListOnce.Do(loadDeckList)
 	for i := range deckList {
-		if deckList[i].ID == id {
+		if deckList[i].id == id {
 			return &deckList[i]
 		}
 	}
@@ -51,7 +94,7 @@ func GetDeckById(id string) *Deck {
 func DeleteDeckById(id string) {
 	deckListOnce.Do(loadDeckList)
 	for i, deck := range deckList {
-		if deck.ID == id {
+		if deck.id == id {
 			deckList = append(deckList[:i], deckList[i+1:]...)
 			return
 		}
@@ -62,10 +105,10 @@ func DuplicateDeckById(id string) {
 	deckListOnce.Do(loadDeckList)
 
 	for i, deck := range deckList {
-		if deck.ID == id {
+		if deck.id == id {
 			newDeck := deck
-			newDeck.ID = strconv.Itoa(rand.Intn(1000))
-			newDeck.Name = "Copy of " + newDeck.Name
+			newDeck.id = strconv.Itoa(rand.Intn(1000))
+			newDeck.name = "Copy of " + newDeck.name
 			deckList = append(deckList[:i+1], append([]Deck{newDeck}, deckList[i+1:]...)...)
 			return
 		}
@@ -75,7 +118,7 @@ func DuplicateDeckById(id string) {
 func SaveDeck(deck Deck) {
 	deckListOnce.Do(loadDeckList)
 	for i, d := range deckList {
-		if d.ID == deck.ID {
+		if d.id == deck.id {
 			deckList[i] = deck
 			return
 		}
@@ -104,8 +147,8 @@ func debug_create_random_deck() Deck {
 	})
 
 	return Deck{
-		ID:    id,
-		Name:  randomName,
-		Cards: cards,
+		id:    id,
+		name:  randomName,
+		cards: cards,
 	}
 }

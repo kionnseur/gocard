@@ -58,15 +58,7 @@ func debug_create_random_card(id int) Card {
 	// créé une carte random
 	// avec un nom random
 	randomName := "Card " + strconv.Itoa(id)
-	return &MonsterCard{
-		ID:          id,
-		Name:        randomName,
-		Image:       "card" + strconv.Itoa(id) + ".png",
-		Description: "Description " + strconv.Itoa(id),
-		Level:       rand.Intn(10) + 1,
-		Attack:      rand.Intn(1000),
-		Defense:     rand.Intn(1000),
-	}
+	return NewMonsterCard(id, randomName, "card"+strconv.Itoa(id)+".png", "Description "+strconv.Itoa(id), rand.Intn(10)+1, rand.Intn(1000), rand.Intn(1000))
 }
 
 func debug_get_random_player_card() Card {

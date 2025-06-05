@@ -31,13 +31,14 @@ func main() {
 		sdl.GetWindowSize(window, &data.ScreenWidth, &data.ScreenHeight)
 		switch state.State {
 		case ui.StateStartMenu:
-			state = ui.AppState(start_menu.RenderStartMenu(renderer))
+			state = start_menu.RenderStartMenu(renderer)
 		case ui.StateDeckMenu:
-			state = ui.AppState(deck_builder.RenderDeckMenu(renderer, window, state))
+			state = deck_builder.RenderDeckMenu(renderer, window, &state)
 		case ui.StateDeckBuilder:
-			state = ui.AppState(deck_builder.RenderDeckEditor(renderer, window, state.Data["deckId"]))
+			deckId := state.Data["deckId"]
+			state = deck_builder.RenderDeckEditor(renderer, window, &deckId)
 		case ui.StateDuel:
-			state = ui.AppState(duel.RenderDuel(renderer))
+			state = duel.RenderDuel(renderer)
 		default:
 			state = ui.AppState{State: ui.StateQuit}
 		}

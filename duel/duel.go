@@ -57,8 +57,8 @@ func RenderDuel(renderer *sdl.Renderer) ui.AppState {
 			case sdl.EventMouseButtonDown:
 				x, y := event.Button().X, event.Button().Y
 				for _, btn := range buttons {
-					if x > btn.Rect.X && x < btn.Rect.X+btn.Rect.W &&
-						y > btn.Rect.Y && y < btn.Rect.Y+btn.Rect.H {
+					if x > btn.GetRect().X && x < btn.GetRect().X+btn.GetRect().W &&
+						y > btn.GetRect().Y && y < btn.GetRect().Y+btn.GetRect().H {
 						return btn.OnClick()
 					}
 				}
@@ -88,15 +88,7 @@ func getDuelElements() []ui.Element {
 	timer := getTimer(font)
 
 	elements := []ui.Element{
-
-		&ui.Button{
-			Rect:      sdl.FRect{X: 140, Y: 280, W: 200, H: 50},
-			Color:     sdl.Color{R: 0, G: 255, B: 0, A: 255},
-			Text:      "Retour ⬅️",
-			TextColor: sdl.Color{R: 255, G: 0, B: 255, A: 255},
-			Font:      font,
-			OnClick:   func() ui.AppState { return ui.AppState{State: ui.StateStartMenu} },
-		},
+		ui.NewButton("Retour ⬅️", sdl.FRect{X: 140, Y: 280, W: 200, H: 50}, sdl.Color{R: 0, G: 255, B: 0, A: 255}, sdl.Color{R: 255, G: 0, B: 255, A: 255}, font, func() ui.AppState { return ui.AppState{State: ui.StateStartMenu} }),
 	}
 
 	elements = append(elements, &timer)
@@ -109,13 +101,12 @@ func getDuelElements() []ui.Element {
 func getTimer(font *ttf.Font) ui.TextBox {
 	countdown := 100
 
-	return ui.TextBox{
-		Rect:      sdl.FRect{X: 540, Y: 0, W: 200, H: 50},
-		Color:     sdl.Color{R: 255, G: 255, B: 0, A: 255},
-		Text:      "Timer: " + fmt.Sprintf("%d", countdown),
-		TextColor: sdl.Color{R: 0, G: 0, B: 255, A: 255},
-		Font:      font,
-	}
+	return *ui.NewTextBox("Timer: "+fmt.Sprintf("%d", countdown),
+		sdl.FRect{X: 540, Y: 0, W: 200, H: 50},
+		sdl.Color{R: 255, G: 255, B: 0, A: 255},
+		sdl.Color{R: 0, G: 0, B: 255, A: 255},
+		font,
+	)
 }
 
 func getleftPlayerHud(font *ttf.Font, player Player) []ui.Element {
@@ -132,52 +123,44 @@ func getleftPlayerHud(font *ttf.Font, player Player) []ui.Element {
 	)
 
 	return []ui.Element{
-		&ui.Hud{
-			Rect:  sdl.FRect{X: hudX, Y: hudY, W: hudW, H: hudH},
-			Color: sdl.Color{R: 0, G: 120, B: 80, A: 255},
-		},
-		&ui.TextBox{
-			Rect:      sdl.FRect{X: hudX + labelPadX, Y: hudY + labelPadY, W: lpLabelW, H: lpH},
-			Color:     sdl.Color{R: 0, G: 0, B: 0, A: 0},
-			Text:      "LP",
-			TextColor: sdl.Color{R: 255, G: 215, B: 0, A: 255},
-			Font:      font,
-		},
-		&ui.TextBox{
-			Rect:      sdl.FRect{X: hudX + labelPadX + lpLabelW + 10, Y: hudY + labelPadY, W: lpValueW, H: lpH},
-			Color:     sdl.Color{R: 0, G: 0, B: 0, A: 0},
-			Text:      fmt.Sprintf("%d", player.LifePoints),
-			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
-			Font:      font,
-		},
-		&ui.TextBox{
-			Rect:      sdl.FRect{X: hudX + labelPadX, Y: hudY + lpH + labelPadY + 10, W: 100, H: 28},
-			Color:     sdl.Color{R: 0, G: 0, B: 0, A: 0},
-			Text:      player.Name,
-			TextColor: sdl.Color{R: 200, G: 200, B: 200, A: 255},
-			Font:      font,
-		},
-		&ui.TextBox{
-			Rect:      sdl.FRect{X: hudX + labelPadX + 120, Y: hudY + lpH + labelPadY + 10, W: 40, H: 28},
-			Color:     sdl.Color{R: 0, G: 0, B: 0, A: 0},
-			Text:      fmt.Sprintf("%d", player.InvocationPower),
-			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
-			Font:      font,
-		},
-		&ui.TextBox{
-			Rect:      sdl.FRect{X: hudX + labelPadX + 170, Y: hudY + lpH + labelPadY + 10, W: 40, H: 28},
-			Color:     sdl.Color{R: 0, G: 0, B: 0, A: 0},
-			Text:      fmt.Sprintf("%d", player.Deck),
-			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
-			Font:      font,
-		},
-		&ui.TextBox{
-			Rect:      sdl.FRect{X: hudX + labelPadX + 220, Y: hudY + lpH + labelPadY + 10, W: 40, H: 28},
-			Color:     sdl.Color{R: 0, G: 0, B: 0, A: 0},
-			Text:      fmt.Sprintf("%d", player.SpellTrapSet),
-			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
-			Font:      font,
-		},
+		ui.NewHud(sdl.FRect{X: hudX, Y: hudY, W: hudW, H: hudH}, sdl.Color{R: 0, G: 120, B: 80, A: 255}),
+		ui.NewTextBox(
+			fmt.Sprintf("LP: %d", player.LifePoints),
+			sdl.FRect{X: hudX + labelPadX + lpLabelW + 10, Y: hudY + labelPadY, W: lpValueW, H: lpH},
+			sdl.Color{R: 0, G: 0, B: 0, A: 0},
+			sdl.Color{R: 255, G: 255, B: 255, A: 255},
+			font,
+	),
+		ui.NewTextBox(
+			player.Name,
+			sdl.FRect{X: hudX + labelPadX, Y: hudY + lpH + labelPadY + 10, W: 100, H: 28},
+			sdl.Color{R: 0, G: 0, B: 0, A: 0},
+			sdl.Color{R: 200, G: 200, B: 200, A: 255},
+			font,
+		),
+
+		ui.NewTextBox(
+			fmt.Sprintf("IP: %d", player.InvocationPower),
+			sdl.FRect{X: hudX + labelPadX + 120, Y: hudY + lpH + labelPadY + 10, W: 40, H: 28},
+			sdl.Color{R: 0, G: 0, B: 0, A: 0},
+			sdl.Color{R: 255, G: 255, B: 255, A: 255},
+			font,
+		),
+
+		ui.NewTextBox(
+			fmt.Sprintf("D: %d", player.Deck), sdl.FRect{X: hudX + labelPadX + 170, Y: hudY + lpH + labelPadY + 10, W: 40, H: 28},
+		sdl.Color{R: 0, G: 0, B: 0, A: 0},
+	sdl.Color{R: 255, G: 255, B: 255, A: 255},
+	font,
+	),
+
+		ui.NewTextBox(
+			fmt.Sprintf("S: %d", player.SpellTrapSet),
+			sdl.FRect{X: hudX + labelPadX + 220, Y: hudY + lpH + labelPadY + 10, W: 40, H: 28},
+			sdl.Color{R: 0, G: 0, B: 0, A: 0},
+			sdl.Color{R: 255, G: 255, B: 255, A: 255},
+			font,
+		),
 	}
 }
 
@@ -195,52 +178,45 @@ func getRightPlayerHud(font *ttf.Font, player Player) []ui.Element {
 	)
 
 	return []ui.Element{
-		&ui.Hud{
-			Rect:  sdl.FRect{X: hudX, Y: hudY, W: hudW, H: hudH},
-			Color: sdl.Color{R: 0, G: 80, B: 120, A: 255},
-		},
-		&ui.TextBox{
-			Rect:      sdl.FRect{X: hudX + labelPadX, Y: hudY + labelPadY, W: lpLabelW, H: lpH},
-			Color:     sdl.Color{R: 0, G: 0, B: 0, A: 0},
-			Text:      "LP",
-			TextColor: sdl.Color{R: 255, G: 215, B: 0, A: 255},
-			Font:      font,
-		},
-		&ui.TextBox{
-			Rect:      sdl.FRect{X: hudX + labelPadX + lpLabelW + 10, Y: hudY + labelPadY, W: lpValueW, H: lpH},
-			Color:     sdl.Color{R: 0, G: 0, B: 0, A: 0},
-			Text:      fmt.Sprintf("%d", player.LifePoints),
-			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
-			Font:      font,
-		},
-		&ui.TextBox{
-			Rect:      sdl.FRect{X: hudX + labelPadX, Y: hudY + lpH + labelPadY + 10, W: 100, H: 28},
-			Color:     sdl.Color{R: 0, G: 0, B: 0, A: 0},
-			Text:      player.Name,
-			TextColor: sdl.Color{R: 200, G: 200, B: 200, A: 255},
-			Font:      font,
-		},
-		&ui.TextBox{
-			Rect:      sdl.FRect{X: hudX + labelPadX + 120, Y: hudY + lpH + labelPadY + 10, W: 40, H: 28},
-			Color:     sdl.Color{R: 0, G: 0, B: 0, A: 0},
-			Text:      fmt.Sprintf("%d", player.InvocationPower),
-			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
-			Font:      font,
-		},
-		&ui.TextBox{
-			Rect:      sdl.FRect{X: hudX + labelPadX + 170, Y: hudY + lpH + labelPadY + 10, W: 40, H: 28},
-			Color:     sdl.Color{R: 0, G: 0, B: 0, A: 0},
-			Text:      fmt.Sprintf("%d", player.Deck),
-			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
-			Font:      font,
-		},
-		&ui.TextBox{
-			Rect:      sdl.FRect{X: hudX + labelPadX + 220, Y: hudY + lpH + labelPadY + 10, W: 40, H: 28},
-			Color:     sdl.Color{R: 0, G: 0, B: 0, A: 0},
-			Text:      fmt.Sprintf("%d", player.SpellTrapSet),
-			TextColor: sdl.Color{R: 255, G: 255, B: 255, A: 255},
-			Font:      font,
-		},
+		ui.NewHud(
+			sdl.FRect{X: hudX, Y: hudY, W: hudW, H: hudH},
+			sdl.Color{R: 0, G: 80, B: 120, A: 255},
+		),
+		ui.NewTextBox(
+			fmt.Sprintf("LP: %d", player.LifePoints),
+			sdl.FRect{X: hudX + labelPadX + lpLabelW + 10, Y: hudY + labelPadY, W: lpValueW, H: lpH},
+			sdl.Color{R: 0, G: 0, B: 0, A: 0},
+			sdl.Color{R: 255, G: 255, B: 255, A: 255},
+			font,
+		),
+		ui.NewTextBox(
+			player.Name,
+			sdl.FRect{X: hudX + labelPadX, Y: hudY + lpH + labelPadY + 10, W: 100, H: 28},
+			sdl.Color{R: 0, G: 0, B: 0, A: 0},
+			sdl.Color{R: 200, G: 200, B: 200, A: 255},
+			font,
+		),
+		ui.NewTextBox(
+			fmt.Sprintf("IP: %d", player.InvocationPower),
+			sdl.FRect{X: hudX + labelPadX + 120, Y: hudY + lpH + labelPadY + 10, W: 40, H: 28},
+			sdl.Color{R: 0, G: 0, B: 0, A: 0},
+			sdl.Color{R: 255, G: 255, B: 255, A: 255},
+			font,
+		),
+		ui.NewTextBox(
+			fmt.Sprintf("D: %d", player.Deck),
+			sdl.FRect{X: hudX + labelPadX + 170, Y: hudY + lpH + labelPadY + 10, W: 40, H: 28},
+			sdl.Color{R: 0, G: 0, B: 0, A: 0},
+			sdl.Color{R: 255, G: 255, B: 255, A: 255},
+			font,
+		),
+		ui.NewTextBox(
+			fmt.Sprintf("S: %d", player.SpellTrapSet),
+			sdl.FRect{X: hudX + labelPadX + 220, Y: hudY + lpH + labelPadY + 10, W: 40, H: 28},
+			sdl.Color{R: 0, G: 0, B: 0, A: 0},
+			sdl.Color{R: 255, G: 255, B: 255, A: 255},
+			font,
+		),
 	}
 }
 
