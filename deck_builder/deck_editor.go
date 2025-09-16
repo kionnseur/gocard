@@ -79,6 +79,12 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, deck_id *strin
 		for _, e := range uiCenterColumn {
 			e.Draw(renderer)
 		}
+		// boutons
+		return_btns := getDeckEditorButtons()
+		for _, btn := range return_btns {
+			btn.Draw(renderer)
+		}
+
 		// colonne de droite avec scrollview
 		scrollableLVHRightColumn.Draw(renderer)
 
@@ -111,6 +117,13 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, deck_id *strin
 							y > uiCard.GetRect().Y && y < uiCard.GetRect().Y+uiCard.GetRect().H {
 							selectedCard = uiCard.GetCard()
 						}
+					}
+				}
+				// check les btn du haut à droite
+				for _, btn := range return_btns{
+					if x > btn.GetRect().X && x < btn.GetRect().X+btn.GetRect().W &&
+						y > btn.GetRect().Y && y < btn.GetRect().Y+btn.GetRect().H {
+						return btn.OnClick()
 					}
 				}
 			case sdl.EventMouseWheel:
@@ -225,4 +238,17 @@ func getPlayerCardListUI(playerCardDict map[int]int) []ui.UICard {
 		elements = append(elements, ui.CreateUICard(card, sdl.FRect{}, qty))
 	}
 	return elements
+}
+
+func getDeckEditorButtons() []*ui.Button {
+	return []*ui.Button{
+		ui.NewButton(
+			"Retour ⬅️",
+			sdl.FRect{X: float32(data.ScreenWidth) - 50, Y: 0, W: 50, H: 50},
+			sdl.Color{R: 0, G: 255, B: 0, A: 255},
+			sdl.Color{R: 255, G: 0, B: 255, A: 255},
+			font,
+			func() ui.AppState { return ui.AppState{State: ui.StateDeckMenu} },
+		),
+	}
 }
