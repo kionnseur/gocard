@@ -106,9 +106,10 @@ func DuplicateDeckById(id string) {
 
 	for i, deck := range deckList {
 		if deck.id == id {
-			newDeck := deck
+			var newDeck Deck
 			newDeck.id = strconv.Itoa(rand.Intn(1000))
-			newDeck.name = "Copy of " + newDeck.name
+			newDeck.name = "Copy of " + deck.name
+			newDeck.cards = append(newDeck.cards, deck.cards...)
 			deckList = append(deckList[:i+1], append([]Deck{newDeck}, deckList[i+1:]...)...)
 			return
 		}
