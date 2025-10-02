@@ -49,11 +49,10 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState *ui.App
 			for _, e := range uiDeckInfoBtn {
 				e.Draw(renderer)
 			}
-		} else if action == "edit" {
-			return ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": deck.GetId(), "action": "edit"}}
+		// } else if action == "edit" {
+		// 	return ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": deck.GetId(), "action": "edit"}}
 		} else if action == "delete" && deck.GetId() != "" {
 			data.DeleteDeckById(deck.GetId())
-			// Réinitialise l'état pour revenir à la liste
 			appState.Data["action"] = ""
 		} else if action == "duplicate" && deck.GetId() != "" {
 			data.DuplicateDeckById(deck.GetId())
@@ -100,13 +99,11 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState *ui.App
 						}
 					}
 				}
-				// deck info
-				if action == "ask" {
-					for _, btn := range uiDeckInfoBtn {
-						if x > btn.GetRect().X && x < btn.GetRect().X+btn.GetRect().W &&
-							y > btn.GetRect().Y && y < btn.GetRect().Y+btn.GetRect().H {
-							return btn.OnClick()
-						}
+				// deck info, uiDeckInfoBtn est vide si action != ask
+				for _, btn := range uiDeckInfoBtn {
+					if x > btn.GetRect().X && x < btn.GetRect().X+btn.GetRect().W &&
+						y > btn.GetRect().Y && y < btn.GetRect().Y+btn.GetRect().H {
+						return btn.OnClick()
 					}
 				}
 
@@ -189,7 +186,7 @@ func uiGetDeckInfo(deck *data.Deck, parent *sdl.FRect) ([]ui.Element, []*ui.Butt
 			sdl.Color{R: 155, G: 55, B: 155, A: 255},
 			font,
 			func() ui.AppState {
-				return ui.AppState{State: ui.StateDeckMenu, Data: map[string]string{"deckId": deck.GetId(), "action": "edit"}}
+				return ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": deck.GetId(), "action": "edit"}}
 			},
 		),
 
