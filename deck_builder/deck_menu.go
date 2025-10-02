@@ -17,6 +17,7 @@ var (
 	lastDeckId            string
 	font                  = ui.GetDefaultFont(24)
 	scrollableLVHDeckList = ui.NewUIScrollableStackView(sdl.FRect{X: gap, Y: 80, W: 200, H: float32(data.ScreenHeight) - gap - 80}, sdl.Color{R: 100, G: 100, B: 100, A: 50}, 15)
+	uiDeckListElements    []ui.Element
 )
 
 func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState *ui.AppState) ui.AppState {
@@ -24,20 +25,6 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState *ui.App
 	var uiDeckInfoBtn []*ui.Button
 	var uiDeckInfo []ui.Element
 
-	// boutons de la liste des decks
-	uiDeckListElements := uiGetDeckListElements(data.GetDeckList(), scrollableLVHDeckList.GetRect())
-	scrollableLVHDeckList.SetElements(uiDeckListElements)
-	scrollableLVHDeckList.OnScroll = func(event *sdl.Event) {
-		y := event.Wheel().Y
-		scrollableLVHDeckList.SetScrollY(scrollableLVHDeckList.GetScrollY() - float32(y)*gap)
-		if scrollableLVHDeckList.GetScrollY() < 0 {
-			scrollableLVHDeckList.SetScrollY(0)
-		}
-		maxScroll := float32(len(uiDeckListElements))*35 - scrollableLVHDeckList.GetRect().H
-		if scrollableLVHDeckList.GetScrollY() > maxScroll {
-			scrollableLVHDeckList.SetScrollY(maxScroll)
-		}
-	}
 	for {
 		sdl.GetWindowSize(window, &data.ScreenWidth, &data.ScreenHeight)
 		sdl.SetRenderDrawColor(renderer, 255, 165, 0, 255)
@@ -49,6 +36,10 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState *ui.App
 			deck = data.GetDeckById(deckId)
 			lastDeckId = deckId
 		}
+
+		// boutons de la liste des decks
+		updateDeckListElements()
+
 		// supprime avant d'afficher la liste
 		if action == "ask" {
 			uiDeckInfo, uiDeckInfoBtn = uiGetDeckInfo(deck, scrollableLVHDeckList.GetRect())
@@ -64,12 +55,11 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState *ui.App
 			data.DeleteDeckById(deck.GetId())
 			// Réinitialise l'état pour revenir à la liste
 			appState.Data["action"] = ""
-			uiDeckListElements = uiGetDeckListElements(data.GetDeckList(), scrollableLVHDeckList.GetRect())
 		} else if action == "duplicate" && deck.GetId() != "" {
 			data.DuplicateDeckById(deck.GetId())
 			appState.Data["action"] = ""
-			uiDeckListElements = uiGetDeckListElements(data.GetDeckList(), scrollableLVHDeckList.GetRect())
 		}
+		updateDeckListElements()
 
 		// Affiche la liste des decks, colonne de gauche et btn retour
 		scrollableLVHDeckList.GetRect().H = float32(data.ScreenHeight) - gap - scrollableLVHDeckList.GetRect().Y
@@ -227,4 +217,20 @@ func uiGetDeckInfo(deck *data.Deck, parent *sdl.FRect) ([]ui.Element, []*ui.Butt
 
 	return elements, buttons
 
+}
+
+func updateDeckListElements() {
+	uiDeckListElements = uiGetDeckListElements(data.GetDeckList(), scrollableLVHDeckList.GetRect())
+	scrollableLVHDeckList.SetElements(uiDeckListElements)
+	scrollableLVHDeckList.OnScroll = func(event *sdl.Event) {
+		y := event.Wheel().Y
+		scrollableLVHDeckList.SetScrollY(scrollableLVHDeckList.GetScrollY() - float32(y)*gap)
+		if scrollableLVHDeckList.GetScrollY() < 0 {
+			scrollableLVHDeckList.SetScrollY(0)
+		}
+		maxScroll := float32(len(uiDeckListElements))*35 - scrollableLVHDeckList.GetRect().H
+		if scrollableLVHDeckList.GetScrollY() > maxScroll {
+			scrollableLVHDeckList.SetScrollY(maxScroll)
+		}
+	}
 }
