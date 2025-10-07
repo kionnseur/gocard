@@ -20,7 +20,10 @@ func RenderStartMenu(renderer *sdl.Renderer) ui.AppState {
 				for _, btn := range buttons {
 					if x > btn.GetRect().X && x < btn.GetRect().X+btn.GetRect().W &&
 						y > btn.GetRect().Y && y < btn.GetRect().Y+btn.GetRect().H {
-						return btn.OnClick()
+						as := btn.OnClick()
+						if as != nil {
+							return *as
+						}
 					}
 				}
 			}
@@ -46,7 +49,7 @@ func getStartMenuButtons() []*ui.Button {
 			sdl.Color{R: 150, G: 150, B: 255, A: 255},
 			sdl.Color{R: 105, G: 105, B: 0, A: 255},
 			font,
-			func() ui.AppState { return ui.AppState{State: ui.StateDeckMenu} },
+			func() *ui.AppState { return &ui.AppState{State: ui.StateDeckMenu} },
 		),
 		ui.NewButton(
 			"Duel",
@@ -54,7 +57,7 @@ func getStartMenuButtons() []*ui.Button {
 			sdl.Color{R: 0, G: 250, B: 0, A: 255},
 			sdl.Color{R: 255, G: 5, B: 255, A: 255},
 			font,
-			func() ui.AppState { return ui.AppState{State: ui.StateDuel} },
+			func() *ui.AppState { return &ui.AppState{State: ui.StateDuel} },
 		),
 	}
 }

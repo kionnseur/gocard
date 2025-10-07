@@ -1,11 +1,18 @@
 package data
 
 import (
-	"math/rand"
 	"slices"
 	"strconv"
 	"sync"
 )
+
+var _ID = 1
+
+func ID() string {
+	i := _ID
+	_ID++
+	return strconv.Itoa(i)
+}
 
 type Deck struct {
 	id    string
@@ -37,6 +44,9 @@ func (d *Deck) RemoveCard(selectedCard Card) {
 }
 
 func (d *Deck) CountCard(selectedCard Card) int {
+	if d == nil {
+		return 0
+	}
 	count := 0
 	for _, card := range d.cards {
 		if card.GetName() == selectedCard.GetName() {
@@ -64,7 +74,7 @@ func loadDeckList() {
 	}
 
 	defaultDeck := Deck{
-		id:    "default",
+		id:    ID(),
 		name:  "Default Deck",
 		cards: cards,
 	}
@@ -101,17 +111,30 @@ func DeleteDeckById(id string) {
 	}
 }
 
+func CloneDeckById(id string) Deck {
+	deckListOnce.Do(loadDeckList)
+	if GetDeckById(id) == nil {
+		return Deck{id: ID(), name: "New Deck", cards: []Card{}}
+	}
+	var to_copy Deck = *GetDeckById(id)
+	var newDeck Deck
+	newDeck.id = to_copy.id
+	newDeck.name = to_copy.name
+	newDeck.cards = append(newDeck.cards, to_copy.cards...)
+	return newDeck
+
+}
+
 func DuplicateDeckById(id string) {
 	deckListOnce.Do(loadDeckList)
 
 	for i, deck := range deckList {
 		if deck.id == id {
 			var newDeck Deck
-			newDeck.id = strconv.Itoa(rand.Intn(1000))
+			newDeck.id = ID()
 			newDeck.name = "Copy of " + deck.name
 			newDeck.cards = append(newDeck.cards, deck.cards...)
 			deckList = append(deckList[:i+1], append([]Deck{newDeck}, deckList[i+1:]...)...)
-			return
 		}
 	}
 }
@@ -139,7 +162,7 @@ func debug_create_random_deck() Deck {
 	for i := 0; i < count; i++ {
 		cards = append(cards, debug_get_random_player_card())
 	}
-	id := "" + strconv.Itoa(rand.Intn(1000))
+	id := ID()
 	randomName := "Deck " + id
 
 	//sort cards by id

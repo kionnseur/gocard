@@ -11,7 +11,7 @@ type Button struct {
 	font      *ttf.Font
 	rect      sdl.FRect
 	color     sdl.Color
-	OnClick   func() AppState
+	OnClick   func() *AppState
 }
 
 func (b *Button) Draw(renderer *sdl.Renderer) {
@@ -22,7 +22,7 @@ func (e *Button) GetRect() *sdl.FRect {
 	return &e.rect
 }
 
-func NewButton(text string, rect sdl.FRect, color, textColor sdl.Color, font *ttf.Font, onClick func() AppState) *Button {
+func NewButton(text string, rect sdl.FRect, color, textColor sdl.Color, font *ttf.Font, onClick func() *AppState) *Button {
 
 	return &Button{
 		text:      text,

@@ -11,7 +11,10 @@ import (
 var (
 	selectedCard   data.Card
 	selectedDeck   *data.Deck
+	dollyDeck      data.Deck
 	playerCardDict map[int]int
+
+	deck_id string
 
 	cardWidth   float32 = 100
 	cardHeight  float32 = 150
@@ -22,10 +25,12 @@ var (
 // Déclare le HUD de la listview à l'extérieur
 var scrollableLVHRightColumn ui.UIScrollableGridView
 
-func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, deck_id *string) ui.AppState {
+func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, appState *ui.AppState) ui.AppState {
 	scrollableLVHRightColumn = *(ui.NewUIScrollableGridView(renderer, sdl.FRect{}, sdl.Color{R: 100, G: 100, B: 100, A: 50}, 3, *ui.NewGridConfig(cardWidth, cardHeight, cardGap)))
 
-	selectedDeck = data.GetDeckById(*deck_id)
+	deck_id := appState.Data["deckId"]
+	selectedDeck = data.GetDeckById(deck_id)
+	dollyDeck = data.CloneDeckById(deck_id)
 
 	playerCardDict := data.GetPlayerCards()
 	playerUICards := getPlayerCardListUI(playerCardDict)
@@ -100,7 +105,10 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, deck_id *strin
 				for _, btn := range uiLeftColumn {
 					if btn, ok := btn.(*ui.Button); ok && x > btn.GetRect().X && x < btn.GetRect().X+btn.GetRect().W &&
 						y > btn.GetRect().Y && y < btn.GetRect().Y+btn.GetRect().H {
-						return btn.OnClick()
+						as := btn.OnClick()
+						if as != nil {
+							return *as
+						}
 					}
 				}
 				//si clique sur une carte, on la selectionne
@@ -120,10 +128,13 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, deck_id *strin
 					}
 				}
 				// check les btn du haut à droite
-				for _, btn := range return_btns{
+				for _, btn := range return_btns {
 					if x > btn.GetRect().X && x < btn.GetRect().X+btn.GetRect().W &&
 						y > btn.GetRect().Y && y < btn.GetRect().Y+btn.GetRect().H {
-						return btn.OnClick()
+						as := btn.OnClick()
+						if as != nil {
+							return *as
+						}
 					}
 				}
 			case sdl.EventMouseWheel:
@@ -162,14 +173,13 @@ func getLeftColumnUI() []ui.Element {
 	cardHeight := cardWidth * 1.5
 	cardRect := sdl.FRect{X: float32(2 * data.ScreenWidth / 48), Y: 40, W: cardWidth, H: cardHeight}
 
-	uiCard := ui.CreateUICard(selectedCard, cardRect, selectedDeck.CountCard(selectedCard))
+	uiCard := ui.CreateUICard(selectedCard, cardRect, dollyDeck.CountCard(selectedCard))
 	elements[0] = uiCard
 
-	currentDeckSize := len(selectedDeck.GetCards())
-	currentCardCountInDeck := selectedDeck.CountCard(selectedCard)
+	currentDeckSize := len(dollyDeck.GetCards())
+	currentCardCountInDeck := dollyDeck.CountCard(selectedCard)
 	currentPlayerCardCount := playerCardDict[selectedCard.GetId()]
 
-	// est-ce que je gere l'érreur de carte null ?
 	if currentDeckSize >= 40 || currentCardCountInDeck >= 3 || currentPlayerCardCount > 3-currentCardCountInDeck {
 		elements[1] = ui.NewTextBox("Ajouter au deck", sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 10, W: cardWidth, H: 30}, sdl.Color{R: 80, G: 80, B: 80, A: 255}, sdl.Color{R: 255, G: 0, B: 0, A: 255}, ui.GetDefaultFont(20))
 	} else {
@@ -179,26 +189,24 @@ func getLeftColumnUI() []ui.Element {
 			sdl.Color{R: 20, G: 20, B: 20, A: 100},
 			sdl.Color{R: 255, G: 255, B: 255, A: 255},
 			ui.GetDefaultFont(20),
-			func() ui.AppState {
-				selectedDeck.SetCards(append(selectedDeck.GetCards(), selectedCard))
-				return ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": selectedDeck.GetId()}}
+			func() *ui.AppState {
+				dollyDeck.SetCards(append(dollyDeck.GetCards(), selectedCard))
+				return nil
 			},
 		)
 	}
 	if currentCardCountInDeck == 0 {
-
 		elements[2] = ui.NewTextBox("Retirer du deck", sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 50, W: cardWidth, H: 30}, sdl.Color{R: 80, G: 80, B: 80, A: 255}, sdl.Color{R: 255, G: 0, B: 0, A: 255}, ui.GetDefaultFont(20))
 	} else {
-
 		elements[2] = ui.NewButton(
 			"Retirer du deck",
 			sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 50, W: cardWidth, H: 30},
 			sdl.Color{R: 20, G: 20, B: 20, A: 100},
 			sdl.Color{R: 255, G: 255, B: 255, A: 255},
 			ui.GetDefaultFont(20),
-			func() ui.AppState {
-				selectedDeck.RemoveCard(selectedCard)
-				return ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": selectedDeck.GetId()}}
+			func() *ui.AppState {
+				dollyDeck.RemoveCard(selectedCard)
+				return nil
 			},
 		)
 	}
@@ -208,7 +216,7 @@ func getLeftColumnUI() []ui.Element {
 
 // retourne la liste des cartes du deck à afficher dans la colonne centrale
 func getDeckCardListUI(centerColRect *sdl.FRect) []ui.UICard {
-	uiCenterColumn := make([]ui.UICard, 0, len(selectedDeck.GetCards()))
+	uiCenterColumn := make([]ui.UICard, 0, len(dollyDeck.GetCards()))
 
 	// Calcul du nombre de cartes qui tiennent dans la largeur de la colonne
 	maxColCards = int((centerColRect.W + cardGap) / (cardWidth + cardGap))
@@ -217,7 +225,7 @@ func getDeckCardListUI(centerColRect *sdl.FRect) []ui.UICard {
 	startX := centerColRect.X + (centerColRect.W-float32(maxColCards)*(cardWidth+cardGap)+cardGap)/2
 	y := 2 * cardGap
 
-	for i, card := range selectedDeck.GetCards() {
+	for i, card := range dollyDeck.GetCards() {
 
 		x := startX + float32(i%maxColCards)*(cardWidth+cardGap)
 		if i%maxColCards == 0 && i != 0 {
@@ -243,12 +251,26 @@ func getPlayerCardListUI(playerCardDict map[int]int) []ui.UICard {
 func getDeckEditorButtons() []*ui.Button {
 	return []*ui.Button{
 		ui.NewButton(
-			"Retour ⬅️",
+			"Retour",
 			sdl.FRect{X: float32(data.ScreenWidth) - 50, Y: 0, W: 50, H: 50},
 			sdl.Color{R: 0, G: 255, B: 0, A: 255},
 			sdl.Color{R: 255, G: 0, B: 255, A: 255},
 			font,
-			func() ui.AppState { return ui.AppState{State: ui.StateDeckMenu} },
+			func() *ui.AppState { return &ui.AppState{State: ui.StateDeckMenu} },
+		),
+		ui.NewButton(
+			"Sauvegarder✅✔️☑️",
+			sdl.FRect{X: float32(data.ScreenWidth) - 100, Y: 0, W: 50, H: 50},
+			sdl.Color{R: 0, G: 255, B: 0, A: 255},
+			sdl.Color{R: 255, G: 0, B: 255, A: 255},
+			font,
+			func() *ui.AppState {
+				if deck_id != ""  {
+					*selectedDeck = dollyDeck
+				}
+				data.SaveDeck(dollyDeck)
+				return nil
+			},
 		),
 	}
 }

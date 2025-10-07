@@ -59,7 +59,7 @@ func RenderDuel(renderer *sdl.Renderer) ui.AppState {
 				for _, btn := range buttons {
 					if x > btn.GetRect().X && x < btn.GetRect().X+btn.GetRect().W &&
 						y > btn.GetRect().Y && y < btn.GetRect().Y+btn.GetRect().H {
-						return btn.OnClick()
+						return *btn.OnClick()
 					}
 				}
 			case sdl.EventType(sdl.KeycodeEscape):
@@ -88,7 +88,7 @@ func getDuelElements() []ui.Element {
 	timer := getTimer(font)
 
 	elements := []ui.Element{
-		ui.NewButton("Retour ⬅️", sdl.FRect{X: 140, Y: 280, W: 200, H: 50}, sdl.Color{R: 0, G: 255, B: 0, A: 255}, sdl.Color{R: 255, G: 0, B: 255, A: 255}, font, func() ui.AppState { return ui.AppState{State: ui.StateStartMenu} }),
+		ui.NewButton("Retour ⬅️", sdl.FRect{X: 140, Y: 280, W: 200, H: 50}, sdl.Color{R: 0, G: 255, B: 0, A: 255}, sdl.Color{R: 255, G: 0, B: 255, A: 255}, font, func() *ui.AppState { return &ui.AppState{State: ui.StateStartMenu} }),
 	}
 
 	elements = append(elements, &timer)
@@ -130,7 +130,7 @@ func getleftPlayerHud(font *ttf.Font, player Player) []ui.Element {
 			sdl.Color{R: 0, G: 0, B: 0, A: 0},
 			sdl.Color{R: 255, G: 255, B: 255, A: 255},
 			font,
-	),
+		),
 		ui.NewTextBox(
 			player.Name,
 			sdl.FRect{X: hudX + labelPadX, Y: hudY + lpH + labelPadY + 10, W: 100, H: 28},
@@ -149,10 +149,10 @@ func getleftPlayerHud(font *ttf.Font, player Player) []ui.Element {
 
 		ui.NewTextBox(
 			fmt.Sprintf("D: %d", player.Deck), sdl.FRect{X: hudX + labelPadX + 170, Y: hudY + lpH + labelPadY + 10, W: 40, H: 28},
-		sdl.Color{R: 0, G: 0, B: 0, A: 0},
-	sdl.Color{R: 255, G: 255, B: 255, A: 255},
-	font,
-	),
+			sdl.Color{R: 0, G: 0, B: 0, A: 0},
+			sdl.Color{R: 255, G: 255, B: 255, A: 255},
+			font,
+		),
 
 		ui.NewTextBox(
 			fmt.Sprintf("S: %d", player.SpellTrapSet),

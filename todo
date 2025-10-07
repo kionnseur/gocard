@@ -1,12 +1,12 @@
 - start_menu 
-- affichage responsive
-- arrière-plan
+- Affichage responsive
+- Arrière-plan
 
 - deck_menu
-- affichage responsive
-- arrière-plan
-- deck préconstruit
-- ne pas laisser retirer le dernier deck jouable de la liste
+- Affichage responsive
+- Arrière-plan
+- Deck préconstruit
+- Ne pas laisser retirer le dernier deck jouable de la liste
 
 - deck_editor
 - Terminer la fonction Draw des cartes
@@ -14,56 +14,56 @@
 - Filtre sur les cartes à droite
 - Trie des cartes à droite
 + Bouton Ajouter/Retirer en dessous des infos de la carte sélectionnée à gauche
-- double clic pour ajouter/retirer
-+ ajouter un bouton save et cancel
+- Double clic pour ajouter/retirer
++ Ajouter un bouton save et cancel
 
 - duel
-- afficher le terrain
-+ afficher le timer
-+ afficher les points de vie
-- afficher le menu pause
-- afficher la main
-- ajouter le tour par tour
-- afficher la quantité restante du deck
-- afficher la carte sélectionnée
-- afficher les actions (déplacer, détail)
-- implémenter les déplacements
-- implémenter la pioche (automatique au début du tour)
-- afficher un historique des actions
-- écran de défaite avec résumé de la partie
-- écran de victoire avec résumé de la partie
+- Afficher le terrain
++ Afficher le timer
++ Afficher les points de vie
+- Afficher le menu pause
+- Afficher la main
+- Ajouter le tour par tour
+- Afficher la quantité restante du deck
+- Afficher la carte sélectionnée
+- Afficher les actions (déplacer, détail)
+- Implémenter les déplacements
+- Implémenter la pioche (automatique au début du tour)
+- Afficher un historique des actions
+- Écran de défaite avec résumé de la partie
+- Écran de victoire avec résumé de la partie
 
-- implémenter le timer (affichage + logique)
-- implémenter la gestion des points de vie (affichage + logique)
-- implémenter le deck building (création, édition, suppression de decks)
+- Implémenter le timer (affichage + logique)
+- Implémenter la gestion des points de vie (affichage + logique)
+- Implémenter le deck building (création, édition, suppression de decks)
 
 - sauvegarde
-- sauvegarde locale des decks, des scores et des paramètres
-- sauvegarde cloud (synchronisation des données)
+- Ajouter une base de données
+- Sauvegarde locale des decks, des scores et des paramètres
+- Sauvegarde cloud (synchronisation des données)
 - Implémenter une sécurité pour les sauvegardes comme chiffrement et identification de corruption.
 
-- ajout de traduction (multilingue)
-- ajout de la musique de fond
-- ajout de la musique de victoire
-- ajout de la musique de défaite
+- Ajout de traduction (multilingue)
+- Ajout de la musique de fond
+- Ajout de la musique de victoire
+- Ajout de la musique de défaite
 
-- gestion des effets sonores (clics, actions)
-- animation des cartes (pioche, pose, attaque)
-- transitions animées entre les menus
+- Gestion des effets sonores (clics, actions)
+- Animation des cartes (pioche, pose, attaque)
+- Transitions animées entre les menus
 
-- tutoriel interactif pour les nouveaux joueurs
+- Tutoriel interactif pour les nouveaux joueurs
 
-- options de configuration (son, langue, affichage)
+- Options de configuration (son, langue, affichage)
 
-- export/import de decks
+- Export/import de decks
 
 - Ajouter des options pour améliorer l'accessibilité : mode daltonien, taille de texte ajustable.
 - Optimiser les performances.
 - Ajouter un mode "économie d'énergie" pour réduire la consommation.
 
 
-- Ajouter un mode multijoueur en local.
-- Ajouter un mode multijoueur en ligne.
+- Ajouter un mode multijoueur.
 
 - Ajouter des statistiques de victoires/défaites/cartes les plus utilisées.
 

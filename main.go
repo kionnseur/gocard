@@ -35,8 +35,7 @@ func main() {
 		case ui.StateDeckMenu:
 			state = deck_builder.RenderDeckMenu(renderer, window, &state)
 		case ui.StateDeckBuilder:
-			deckId := state.Data["deckId"]
-			state = deck_builder.RenderDeckEditor(renderer, window, &deckId)
+			state = deck_builder.RenderDeckEditor(renderer, window, &state)
 		case ui.StateDuel:
 			state = duel.RenderDuel(renderer)
 		default:

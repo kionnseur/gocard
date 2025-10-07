@@ -18,11 +18,12 @@ var (
 	font                  = ui.GetDefaultFont(24)
 	scrollableLVHDeckList = ui.NewUIScrollableStackView(sdl.FRect{X: gap, Y: 80, W: 200, H: float32(data.ScreenHeight) - gap - 80}, sdl.Color{R: 100, G: 100, B: 100, A: 50}, 15)
 	uiDeckListElements    []ui.Element
+	askedDeckId           string
 )
 
 func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState *ui.AppState) ui.AppState {
 	var buttons []*ui.Button
-	var uiDeckInfoBtn []*ui.Button
+	var uiDeckInfoBtns []*ui.Button
 	var uiDeckInfo []ui.Element
 
 	for {
@@ -30,34 +31,22 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState *ui.App
 		sdl.SetRenderDrawColor(renderer, 255, 165, 0, 255)
 		sdl.RenderClear(renderer)
 
-		action := appState.Data["action"]
-		deckId := appState.Data["deckId"]
-		if deckId != lastDeckId {
-			deck = data.GetDeckById(deckId)
-			lastDeckId = deckId
+		if askedDeckId != lastDeckId {
+			deck = data.GetDeckById(askedDeckId)
+			lastDeckId = askedDeckId
 		}
 
-		// boutons de la liste des decks
-		updateDeckListElements()
-
 		// supprime avant d'afficher la liste
-		if action == "ask" {
-			uiDeckInfo, uiDeckInfoBtn = uiGetDeckInfo(deck, scrollableLVHDeckList.GetRect())
+		if askedDeckId != "" {
+			uiDeckInfo, uiDeckInfoBtns = uiGetDeckInfo(deck, scrollableLVHDeckList.GetRect())
 			for _, e := range uiDeckInfo {
 				e.Draw(renderer)
 			}
-			for _, e := range uiDeckInfoBtn {
+			for _, e := range uiDeckInfoBtns {
 				e.Draw(renderer)
 			}
-		// } else if action == "edit" {
-		// 	return ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": deck.GetId(), "action": "edit"}}
-		} else if action == "delete" && deck.GetId() != "" {
-			data.DeleteDeckById(deck.GetId())
-			appState.Data["action"] = ""
-		} else if action == "duplicate" && deck.GetId() != "" {
-			data.DuplicateDeckById(deck.GetId())
-			appState.Data["action"] = ""
 		}
+		// boutons de la liste des decks
 		updateDeckListElements()
 
 		// Affiche la liste des decks, colonne de gauche et btn retour
@@ -83,7 +72,10 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState *ui.App
 				for _, btn := range buttons {
 					if x > btn.GetRect().X && x < btn.GetRect().X+btn.GetRect().W &&
 						y > btn.GetRect().Y && y < btn.GetRect().Y+btn.GetRect().H {
-						return btn.OnClick()
+						as := btn.OnClick()
+						if as != nil {
+							return *as
+						}
 					}
 				}
 				// liste de deck
@@ -94,16 +86,22 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState *ui.App
 							rect.Y -= scrollableLVHDeckList.GetScrollY()
 							if x > rect.X && x < rect.X+rect.W &&
 								y > rect.Y && y < rect.Y+rect.H {
-								return btn.OnClick()
+								as := btn.OnClick()
+								if as != nil {
+									return *as
+								}
 							}
 						}
 					}
 				}
 				// deck info, uiDeckInfoBtn est vide si action != ask
-				for _, btn := range uiDeckInfoBtn {
+				for _, btn := range uiDeckInfoBtns {
 					if x > btn.GetRect().X && x < btn.GetRect().X+btn.GetRect().W &&
 						y > btn.GetRect().Y && y < btn.GetRect().Y+btn.GetRect().H {
-						return btn.OnClick()
+						as := btn.OnClick()
+						if as != nil {
+							return *as
+						}
 					}
 				}
 
@@ -124,8 +122,9 @@ func getDeckMenuButtons(parent *sdl.FRect) []*ui.Button {
 			sdl.Color{R: 0, G: 0, B: 0, A: 100},
 			sdl.Color{R: 255, G: 255, B: 255, A: 255},
 			font,
-			func() ui.AppState {
-				return ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": "", "action": "new"}}
+			func() *ui.AppState {
+				askedDeckId = ""
+				return &ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": "", "action": "new"}}
 			},
 		),
 		ui.NewButton(
@@ -134,7 +133,7 @@ func getDeckMenuButtons(parent *sdl.FRect) []*ui.Button {
 			sdl.Color{R: 0, G: 255, B: 0, A: 255},
 			sdl.Color{R: 255, G: 0, B: 255, A: 255},
 			font,
-			func() ui.AppState { return ui.AppState{State: ui.StateStartMenu} },
+			func() *ui.AppState { return &ui.AppState{State: ui.StateStartMenu} },
 		),
 	}
 }
@@ -151,8 +150,9 @@ func uiGetDeckListElements(decksList []data.Deck, parent *sdl.FRect) []ui.Elemen
 			sdl.Color{R: r, G: g, B: b, A: 255},
 			sdl.Color{R: 255 - r, G: 255 - g, B: 255 - b, A: 255},
 			font,
-			func() ui.AppState {
-				return ui.AppState{State: ui.StateDeckMenu, Data: map[string]string{"deckId": deck.GetId(), "action": "ask"}}
+			func() *ui.AppState {
+				askedDeckId = deck.GetId()
+				return nil
 			},
 		)
 	}
@@ -185,8 +185,8 @@ func uiGetDeckInfo(deck *data.Deck, parent *sdl.FRect) ([]ui.Element, []*ui.Butt
 			sdl.Color{R: 100, G: 200, B: 100, A: 255},
 			sdl.Color{R: 155, G: 55, B: 155, A: 255},
 			font,
-			func() ui.AppState {
-				return ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": deck.GetId(), "action": "edit"}}
+			func() *ui.AppState {
+				return &ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": deck.GetId(), "action": "edit"}}
 			},
 		),
 
@@ -196,8 +196,10 @@ func uiGetDeckInfo(deck *data.Deck, parent *sdl.FRect) ([]ui.Element, []*ui.Butt
 			sdl.Color{R: 100, G: 100, B: 200, A: 255},
 			sdl.Color{R: 255, G: 255, B: 255, A: 255},
 			font,
-			func() ui.AppState {
-				return ui.AppState{State: ui.StateDeckMenu, Data: map[string]string{"deckId": deck.GetId(), "action": "duplicate"}}
+			func() *ui.AppState {
+				data.DuplicateDeckById(deck.GetId())
+				updateDeckListElements()
+				return nil
 			},
 		),
 		ui.NewButton(
@@ -206,8 +208,9 @@ func uiGetDeckInfo(deck *data.Deck, parent *sdl.FRect) ([]ui.Element, []*ui.Butt
 			sdl.Color{R: 200, G: 100, B: 100, A: 255},
 			sdl.Color{R: 55, G: 155, B: 155, A: 255},
 			font,
-			func() ui.AppState {
-				return ui.AppState{State: ui.StateDeckMenu, Data: map[string]string{"deckId": deck.GetId(), "action": "delete"}}
+			func() *ui.AppState {
+				data.DeleteDeckById(deck.GetId())
+				return nil
 			},
 		),
 	}
