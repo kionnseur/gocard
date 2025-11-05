@@ -5,29 +5,29 @@ import (
 	"github.com/jupiterrider/purego-sdl3/ttf"
 )
 
+// caches fonts by size.
 var fontCache = map[float32]*ttf.Font{}
 
+// Draw a colored rectangle with centered text.
 func drawTextBoxLike(renderer *sdl.Renderer, rect sdl.FRect, color sdl.Color, text string, textColor sdl.Color, font *ttf.Font) {
-	// Dessine le rectangle
+	// Draw background rectangle
 	sdl.SetRenderDrawColor(renderer, color.R, color.G, color.B, color.A)
 	sdl.RenderFillRect(renderer, &rect)
 	sdl.SetRenderDrawColor(renderer, textColor.R, textColor.G, textColor.B, textColor.A)
-	// Initialise TTF si ce n'est pas déjà fait
 
-	// Crée la surface du texte
+	// Create text surface
 	surface := ttf.RenderTextBlendedWrapped(font, text, uint64(len(text)), textColor, int32(rect.W))
 	if surface == nil {
 		return
 	}
 
-	// Crée la texture à partir de la surface
+	// Create texture and render centered
 	texture := sdl.CreateTextureFromSurface(renderer, surface)
 	if texture == nil {
 		return
 	}
 	defer sdl.DestroyTexture(texture)
 
-	// Centre le texte dans le rectangle
 	textW := surface.W
 	textH := surface.H
 	dstRect := sdl.FRect{
@@ -39,12 +39,12 @@ func drawTextBoxLike(renderer *sdl.Renderer, rect sdl.FRect, color sdl.Color, te
 	sdl.RenderTexture(renderer, texture, nil, &dstRect)
 }
 
+// returns a cached font for the given size.
 func GetDefaultFont(size float32) *ttf.Font {
-	// stock une font par taille passé en parametre
 	if ttf.WasInit() == 0 {
 		ttf.Init()
 	}
-	size = GetDefaultFontSize(size)
+	size = getDefaultFontSize(size)
 	if f, ok := fontCache[size]; ok && f != nil {
 		return f
 	}
@@ -55,8 +55,8 @@ func GetDefaultFont(size float32) *ttf.Font {
 	return font
 }
 
-func GetDefaultFontSize(size float32) float32 {
-	// pour que 1 et 0 soit une valeur par defaut
+// normalizes font size (defaults to 18 if < 2).
+func getDefaultFontSize(size float32) float32 {
 	if size < 2 {
 		return 18
 	}

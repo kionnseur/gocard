@@ -12,15 +12,12 @@ type UICard interface {
 	Element
 }
 
-// Draw implements Element.
-
 type UIMonsterCard struct {
 	rect     sdl.FRect
 	card     *data.MonsterCard
 	quantity int
 }
 
-// GetCard implements UICard.
 func (m *UIMonsterCard) GetCard() data.Card { return m.card }
 
 func (m *UIMonsterCard) GetDescription() string { return m.card.GetDescription() }
@@ -35,6 +32,7 @@ func (m *UIMonsterCard) Draw(renderer *sdl.Renderer) {
 	sdl.SetRenderDrawColor(renderer, 255, 255, 255, 255)
 	sdl.RenderFillRect(renderer, &m.rect)
 
+	// Name box
 	nameBox := TextBox{
 		text:      m.card.GetName(),
 		rect:      sdl.FRect{X: m.rect.X + 5, Y: m.rect.Y + 5, W: m.rect.W - 10, H: 20},
@@ -43,6 +41,7 @@ func (m *UIMonsterCard) Draw(renderer *sdl.Renderer) {
 		textColor: sdl.Color{R: 0, G: 0, B: 0, A: 255},
 	}
 	if m.quantity > 1 {
+		// Quantity box if > 1
 		qtyBox := TextBox{
 			text:      strconv.Itoa(m.quantity),
 			rect:      sdl.FRect{X: m.rect.X + 5, Y: m.rect.Y + 25, W: m.rect.W - 10, H: 20},
@@ -61,7 +60,6 @@ type UISpellTrapCard struct {
 	quantity int
 }
 
-// GetCard implements UICard.
 func (m *UISpellTrapCard) GetCard() data.Card { return m.card }
 
 func (m *UISpellTrapCard) GetDescription() string { return m.card.GetDescription() }
@@ -72,10 +70,12 @@ func (m *UISpellTrapCard) GetName() string { return m.card.GetName() }
 
 func (m *UISpellTrapCard) GetRect() *sdl.FRect { return &m.rect }
 
+// Draw renders the spell/trap card.
 func (m *UISpellTrapCard) Draw(renderer *sdl.Renderer) {
 	sdl.SetRenderDrawColor(renderer, 255, 255, 255, 255)
 	sdl.RenderFillRect(renderer, &m.rect)
 
+	// Name box
 	nameBox := TextBox{
 		text:      m.card.GetName(),
 		rect:      sdl.FRect{X: m.rect.X + 5, Y: m.rect.Y + 5, W: m.rect.W - 10, H: 20},
@@ -84,6 +84,7 @@ func (m *UISpellTrapCard) Draw(renderer *sdl.Renderer) {
 		textColor: sdl.Color{R: 0, G: 0, B: 0, A: 255},
 	}
 	if m.quantity > 1 {
+		// Quantity box if > 1
 		qtyBox := TextBox{
 			text:      strconv.Itoa(m.quantity),
 			rect:      sdl.FRect{X: m.rect.X + 5, Y: m.rect.Y + 25, W: m.rect.W - 10, H: 20},
@@ -96,6 +97,7 @@ func (m *UISpellTrapCard) Draw(renderer *sdl.Renderer) {
 	nameBox.Draw(renderer)
 }
 
+// Creates the appropriate UICard based on card type.
 func CreateUICard(card data.Card, rect sdl.FRect, quantity int) UICard {
 	if c, ok := card.(*data.MonsterCard); ok {
 		return &UIMonsterCard{

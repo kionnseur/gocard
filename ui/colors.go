@@ -2,32 +2,31 @@ package ui
 
 import "math"
 
-// Fait tourner la couleur sur le cercle chromatique (arc-en-ciel)
+// ColorCycle cycles through rainbow colors.
 func ColorCycle(step int) (uint8, uint8, uint8) {
-	// 0 <= step < 1536 pour un cycle complet (256*6)
 	phase := step % 1536
 	section := phase / 256
 	offset := phase % 256
 
 	var r, g, b uint8
 	switch section {
-	case 0: // Rouge -> Jaune
+	case 0: // Red to Yellow
 		r, g, b = 255, uint8(offset), 0
-	case 1: // Jaune -> Vert
+	case 1: // Yellow to Green
 		r, g, b = uint8(255-offset), 255, 0
-	case 2: // Vert -> Cyan
+	case 2: // Green to Cyan
 		r, g, b = 0, 255, uint8(offset)
-	case 3: // Cyan -> Bleu
+	case 3: // Cyan to Blue
 		r, g, b = 0, uint8(255-offset), 255
-	case 4: // Bleu -> Magenta
+	case 4: // Blue to Magenta
 		r, g, b = uint8(offset), 0, 255
-	case 5: // Magenta -> Rouge
+	case 5: // Magenta to Red
 		r, g, b = 255, 0, uint8(255-offset)
 	}
 	return r, g, b
 }
 
-// Variante sinus pour un effet de "respiration" colorée douce
+// Creates a soft breathing color effect using sine waves.
 func ColorBreathSin(step int) (uint8, uint8, uint8) {
 	f := float64(step) * 0.05
 	r := uint8((math.Sin(f) + 1) * 127)
@@ -36,13 +35,10 @@ func ColorBreathSin(step int) (uint8, uint8, uint8) {
 	return r, g, b
 }
 
+// Add a step to RGB values for a simple color shift.
 func ColorBreath(r, g, b uint8, step int) (uint8, uint8, uint8) {
-
-	// On fait varier les couleurs en fonction du step
 	r = uint8((int(r) + step) % 256)
 	g = uint8((int(g) + step) % 256)
 	b = uint8((int(b) + step) % 256)
-
-	// On retourne les nouvelles valeurs de couleur
 	return r, g, b
 }

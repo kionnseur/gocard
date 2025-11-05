@@ -23,7 +23,6 @@ func (e *Button) GetRect() *sdl.FRect {
 }
 
 func NewButton(text string, rect sdl.FRect, color, textColor sdl.Color, font *ttf.Font, onClick func() *AppState) *Button {
-
 	return &Button{
 		text:      text,
 		rect:      rect,
@@ -32,4 +31,9 @@ func NewButton(text string, rect sdl.FRect, color, textColor sdl.Color, font *tt
 		font:      font,
 		OnClick:   onClick,
 	}
+}
+
+// Checks if a point (x, y) is inside the rectangle.
+func HitTest(rect *sdl.FRect, x, y int32) bool {
+	return x >= int32(rect.X) && x <= int32(rect.X+rect.W) && y >= int32(rect.Y) && y <= int32(rect.Y+rect.H)
 }

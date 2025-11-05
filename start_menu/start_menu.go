@@ -6,31 +6,21 @@ import (
 	"github.com/jupiterrider/purego-sdl3/sdl"
 )
 
-func RenderStartMenu(renderer *sdl.Renderer) ui.AppState {
+// Displays the start menu and handles events.
+func RenderStartMenu(renderer *sdl.Renderer) *ui.AppState {
 	buttons := getStartMenuButtons()
 
 	for {
-		var event sdl.Event
-		for sdl.PollEvent(&event) {
-			switch event.Type() {
-			case sdl.EventQuit:
-				return ui.AppState{State: ui.StateQuit}
-			case sdl.EventMouseButtonDown:
-				x, y := event.Button().X, event.Button().Y
-				for _, btn := range buttons {
-					if x > btn.GetRect().X && x < btn.GetRect().X+btn.GetRect().W &&
-						y > btn.GetRect().Y && y < btn.GetRect().Y+btn.GetRect().H {
-						as := btn.OnClick()
-						if as != nil {
-							return *as
-						}
-					}
-				}
-			}
+		// Handle events
+		if state := handleEvents(buttons); state != nil {
+			return state
 		}
+
+		// Clear screen
 		sdl.SetRenderDrawColor(renderer, 200, 200, 200, 255)
 		sdl.RenderClear(renderer)
 
+		// Draw buttons
 		for _, btn := range buttons {
 			btn.Draw(renderer)
 		}
@@ -39,6 +29,38 @@ func RenderStartMenu(renderer *sdl.Renderer) ui.AppState {
 	}
 }
 
+// Handles events for the start menu.
+func handleEvents(buttons []*ui.Button) *ui.AppState {
+	var event sdl.Event
+	for sdl.PollEvent(&event) {
+		switch event.Type() {
+		case sdl.EventQuit:
+			return &ui.AppState{State: ui.StateQuit}
+		case sdl.EventMouseButtonDown:
+			if state := handleButtonClick(event, buttons); state != nil {
+				return state
+			}
+		}
+	}
+	return nil
+}
+
+// Handles button clicks.
+func handleButtonClick(event sdl.Event, buttons []*ui.Button) *ui.AppState {
+	x, y := event.Button().X, event.Button().Y
+	for _, btn := range buttons {
+		rect := btn.GetRect()
+		if x > rect.X && x < rect.X+rect.W &&
+			y > rect.Y && y < rect.Y+rect.H {
+			if as := btn.OnClick(); as != nil {
+				return as
+			}
+		}
+	}
+	return nil
+}
+
+// Creates the start menu buttons.
 func getStartMenuButtons() []*ui.Button {
 	font := ui.GetDefaultFont(24)
 

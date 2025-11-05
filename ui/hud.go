@@ -20,6 +20,7 @@ func (h *Hud) Draw(renderer *sdl.Renderer) {
 	sdl.SetRenderDrawColor(renderer, h.color.R, h.color.G, h.color.B, h.color.A)
 	sdl.RenderFillRect(renderer, &h.rect)
 }
+
 func (e *Hud) GetRect() *sdl.FRect {
 	return &e.rect
 }

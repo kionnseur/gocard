@@ -1,75 +1,75 @@
-- start_menu 
-- Affichage responsive
-- Arrière-plan
+- start_menu
+- Responsive display
+- Background
 
 - deck_menu
-- Affichage responsive
-- Arrière-plan
-- Deck préconstruit
-- Ne pas laisser retirer le dernier deck jouable de la liste
+- Responsive display
+- Background
+- Pre-built deck
+- Prevent removing the last playable deck from the list
 
 - deck_editor
-- Terminer la fonction Draw des cartes
-+ Afficher la liste des cartes à droite
-- Filtre sur les cartes à droite
-- Trie des cartes à droite
-+ Bouton Ajouter/Retirer en dessous des infos de la carte sélectionnée à gauche
-- Double clic pour ajouter/retirer
-+ Ajouter un bouton save et cancel
+- Finish card Draw function
++ Display card list on the right
+- Filter cards on the right
+- Sort cards on the right
++ Add/Remove buttons below selected card info on the left
+- Double-click to add/remove
++ Add save and cancel buttons
 
 - duel
-- Afficher le terrain
-+ Afficher le timer
-+ Afficher les points de vie
-- Afficher le menu pause
-- Afficher la main
-- Ajouter le tour par tour
-- Afficher la quantité restante du deck
-- Afficher la carte sélectionnée
-- Afficher les actions (déplacer, détail)
-- Implémenter les déplacements
-- Implémenter la pioche (automatique au début du tour)
-- Afficher un historique des actions
-- Écran de défaite avec résumé de la partie
-- Écran de victoire avec résumé de la partie
+- Display the field
++ Display the timer
++ Display life points
+- Display pause menu
+- Display hand
+- Add turn-based system
+- Display remaining deck quantity
+- Display selected card
+- Display actions (move, details)
+- Implement movements
+- Implement drawing (automatic at turn start)
+- Display action history
+- Defeat screen with match summary
+- Victory screen with match summary
 
-- Implémenter le timer (affichage + logique)
-- Implémenter la gestion des points de vie (affichage + logique)
-- Implémenter le deck building (création, édition, suppression de decks)
+- Implement timer (display + logic)
+- Implement life points management (display + logic)
+- Implement deck building (creation, editing, deletion)
 
-- sauvegarde
-- Ajouter une base de données
-- Sauvegarde locale des decks, des scores et des paramètres
-- Sauvegarde cloud (synchronisation des données)
-- Implémenter une sécurité pour les sauvegardes comme chiffrement et identification de corruption.
+- saving
+- Add database
+- Local saving of decks, scores, and settings
+- Cloud saving (data synchronization)
+- Implement security for saves like encryption and corruption detection.
 
-- Ajout de traduction (multilingue)
-- Ajout de la musique de fond
-- Ajout de la musique de victoire
-- Ajout de la musique de défaite
+- Add translation (multilingual)
+- Add background music
+- Add victory music
+- Add defeat music
 
-- Gestion des effets sonores (clics, actions)
-- Animation des cartes (pioche, pose, attaque)
-- Transitions animées entre les menus
+- Sound effect management (clicks, actions)
+- Card animations (drawing, placing, attacking)
+- Animated transitions between menus
 
-- Tutoriel interactif pour les nouveaux joueurs
+- Interactive tutorial for new players
 
-- Options de configuration (son, langue, affichage)
+- Configuration options (sound, language, display)
 
-- Export/import de decks
+- Export/import decks
 
-- Ajouter des options pour améliorer l'accessibilité : mode daltonien, taille de texte ajustable.
-- Optimiser les performances.
-- Ajouter un mode "économie d'énergie" pour réduire la consommation.
+- Add options to improve accessibility: colorblind mode, adjustable text size.
+- Optimize performance.
+- Add a "power saving" mode to reduce consumption.
 
 
-- Ajouter un mode multijoueur.
+- Add multiplayer mode.
 
-- Ajouter des statistiques de victoires/défaites/cartes les plus utilisées.
+- Add win/loss/most used cards statistics.
 
-- Permettre la personnalisation des avatars ou des profils des joueurs.
-- Ajouter des thèmes ou des skins pour les cartes et les menus.
+- Allow customization of player avatars or profiles.
+- Add themes or skins for cards and menus.
 
-# pour un autre projet ?
-- Ajouter un système de mise à jour automatique.
-- Intégrer des notifications pour informer des nouveautés ou des événements.
+# for another project?
+- Add an automatic update system.
+- Integrate notifications to inform about news or events.

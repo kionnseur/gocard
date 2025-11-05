@@ -8,7 +8,8 @@ import (
 	"github.com/jupiterrider/purego-sdl3/ttf"
 )
 
-func RenderDuel(renderer *sdl.Renderer) ui.AppState {
+// Renders the duel screen.
+func RenderDuel(renderer *sdl.Renderer) *ui.AppState {
 	elements := getDuelElements()
 	buttons := make([]*ui.Button, 0, len(elements))
 	for _, e := range elements {
@@ -39,27 +40,26 @@ func RenderDuel(renderer *sdl.Renderer) ui.AppState {
 	}
 
 	for {
-		// Efface l'écran à chaque frame
+		// Clear screen each frame
 		sdl.SetRenderDrawColor(renderer, 255, 255, 255, 255)
 		sdl.RenderClear(renderer)
 
-		// Dessine tous les éléments à chaque frame
+		// Draw all elements each frame
 		for _, e := range elements {
 			e.Draw(renderer)
 		}
 
-		// Gestion des événements
+		// Handle events
 		var event sdl.Event
 		for sdl.PollEvent(&event) {
 			switch event.Type() {
 			case sdl.EventQuit:
-				return ui.AppState{State: ui.StateQuit}
+				return &ui.AppState{State: ui.StateQuit}
 			case sdl.EventMouseButtonDown:
 				x, y := event.Button().X, event.Button().Y
 				for _, btn := range buttons {
-					if x > btn.GetRect().X && x < btn.GetRect().X+btn.GetRect().W &&
-						y > btn.GetRect().Y && y < btn.GetRect().Y+btn.GetRect().H {
-						return *btn.OnClick()
+					if ui.HitTest(btn.GetRect(), int32(x), int32(y)) {
+						return btn.OnClick()
 					}
 				}
 			case sdl.EventType(sdl.KeycodeEscape):
@@ -71,6 +71,7 @@ func RenderDuel(renderer *sdl.Renderer) ui.AppState {
 	}
 }
 
+// Creates the duel screen elements.
 func getDuelElements() []ui.Element {
 	player := Player{
 		Name:            "Red",
@@ -82,13 +83,13 @@ func getDuelElements() []ui.Element {
 	}
 
 	font := ui.GetDefaultFont(24)
-	leftPlayerHud := getleftPlayerHud(font, player)
+	leftPlayerHud := getLeftPlayerHud(font, player)
 	rightPlayerHud := getRightPlayerHud(font, player)
 
 	timer := getTimer(font)
 
 	elements := []ui.Element{
-		ui.NewButton("Retour ⬅️", sdl.FRect{X: 140, Y: 280, W: 200, H: 50}, sdl.Color{R: 0, G: 255, B: 0, A: 255}, sdl.Color{R: 255, G: 0, B: 255, A: 255}, font, func() *ui.AppState { return &ui.AppState{State: ui.StateStartMenu} }),
+		ui.NewButton("Back ⬅️", sdl.FRect{X: 140, Y: 280, W: 200, H: 50}, sdl.Color{R: 0, G: 255, B: 0, A: 255}, sdl.Color{R: 255, G: 0, B: 255, A: 255}, font, func() *ui.AppState { return &ui.AppState{State: ui.StateStartMenu} }),
 	}
 
 	elements = append(elements, &timer)
@@ -98,6 +99,7 @@ func getDuelElements() []ui.Element {
 	return elements
 }
 
+// Creates the timer text box.
 func getTimer(font *ttf.Font) ui.TextBox {
 	countdown := 100
 
@@ -109,7 +111,8 @@ func getTimer(font *ttf.Font) ui.TextBox {
 	)
 }
 
-func getleftPlayerHud(font *ttf.Font, player Player) []ui.Element {
+// Creates the left player's HUD.
+func getLeftPlayerHud(font *ttf.Font, player Player) []ui.Element {
 	const (
 		hudX      = 40
 		hudY      = 0
@@ -164,6 +167,7 @@ func getleftPlayerHud(font *ttf.Font, player Player) []ui.Element {
 	}
 }
 
+// Creates the right player's HUD.
 func getRightPlayerHud(font *ttf.Font, player Player) []ui.Element {
 	const (
 		hudX      = 1020
@@ -220,6 +224,7 @@ func getRightPlayerHud(font *ttf.Font, player Player) []ui.Element {
 	}
 }
 
+// Handles pause key press.
 func (d *Duel) pausedPressed() {
 	if d.IsPaused {
 		d.IsPaused = false

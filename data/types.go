@@ -1,6 +1,5 @@
 package data
 
-
 type Card interface {
 	GetId() int
 	GetName() string
@@ -45,6 +44,7 @@ func NewSpellTrapCard(id int, name, image, description string) *SpellTrapCard {
 		description: description,
 	}
 }
+
 func (m *MonsterCard) GetId() int {
 	return m.id
 }
@@ -52,18 +52,23 @@ func (m *MonsterCard) GetId() int {
 func (m *MonsterCard) GetName() string {
 	return m.name
 }
+
 func (m *MonsterCard) GetImage() string {
 	return m.image
 }
+
 func (m *MonsterCard) GetDescription() string {
 	return m.description
 }
+
 func (s *SpellTrapCard) GetName() string {
 	return s.name
 }
+
 func (s *SpellTrapCard) GetImage() string {
 	return s.image
 }
+
 func (s *SpellTrapCard) GetDescription() string {
 	return s.description
 }

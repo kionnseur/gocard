@@ -6,8 +6,10 @@ import (
 	"sync"
 )
 
+// ID generator for unique deck IDs.
 var _ID = 1
 
+// Returns a unique string ID.
 func ID() string {
 	i := _ID
 	_ID++
@@ -23,26 +25,30 @@ type Deck struct {
 func (d *Deck) GetName() string {
 	return d.name
 }
+
 func (d *Deck) GetId() string {
 	return d.id
 }
+
 func (d *Deck) GetCards() []Card {
 	return d.cards
 }
+
 func (d *Deck) SetCards(cards []Card) {
 	d.cards = cards
 }
 
+// Removes a specific card from the deck.
 func (d *Deck) RemoveCard(selectedCard Card) {
 	for i, card := range d.cards {
 		if card.GetName() == selectedCard.GetName() {
-			// d.Cards = slices.Delete(d.Cards, i, i+1)
 			d.cards = append(d.cards[:i], d.cards[i+1:]...)
 			break
 		}
 	}
 }
 
+// Counts the occurrences of a card in the deck.
 func (d *Deck) CountCard(selectedCard Card) int {
 	if d == nil {
 		return 0
@@ -57,16 +63,17 @@ func (d *Deck) CountCard(selectedCard Card) int {
 }
 
 // ////////////
-// fonctionnel
+// Operational functions
 // ////////////
 
+// Global deck list.
 var (
 	deckList     []Deck
 	deckListOnce sync.Once
 )
 
+// Loads the initial deck list (with default and random decks).
 func loadDeckList() {
-	// Génère les decks par défaut en mémoire
 	count := 20
 	cards := make([]Card, 0, count)
 	for i := 0; i < count; i++ {
@@ -82,15 +89,17 @@ func loadDeckList() {
 	deckList = make([]Deck, 0, 30)
 	deckList = append(deckList, defaultDeck)
 	for i := 0; i < 30; i++ {
-		deckList = append(deckList, debug_create_random_deck())
+		deckList = append(deckList, debugCreateRandomDeck())
 	}
 }
 
+// Returns all decks.
 func GetDeckList() []Deck {
 	deckListOnce.Do(loadDeckList)
 	return deckList
 }
 
+// Returns a deck by ID.
 func GetDeckById(id string) *Deck {
 	deckListOnce.Do(loadDeckList)
 	for i := range deckList {
@@ -101,6 +110,7 @@ func GetDeckById(id string) *Deck {
 	return nil
 }
 
+// Deletes a deck by ID.
 func DeleteDeckById(id string) {
 	deckListOnce.Do(loadDeckList)
 	for i, deck := range deckList {
@@ -111,20 +121,21 @@ func DeleteDeckById(id string) {
 	}
 }
 
+// Clones an existing deck for editing.
 func CloneDeckById(id string) Deck {
 	deckListOnce.Do(loadDeckList)
 	if GetDeckById(id) == nil {
 		return Deck{id: ID(), name: "New Deck", cards: []Card{}}
 	}
-	var to_copy Deck = *GetDeckById(id)
+	var toCopy Deck = *GetDeckById(id)
 	var newDeck Deck
-	newDeck.id = to_copy.id
-	newDeck.name = to_copy.name
-	newDeck.cards = append(newDeck.cards, to_copy.cards...)
+	newDeck.id = toCopy.id
+	newDeck.name = toCopy.name
+	newDeck.cards = append(newDeck.cards, toCopy.cards...)
 	return newDeck
-
 }
 
+// Duplicates a deck with a new name.
 func DuplicateDeckById(id string) {
 	deckListOnce.Do(loadDeckList)
 
@@ -139,6 +150,7 @@ func DuplicateDeckById(id string) {
 	}
 }
 
+// Saves or updates a deck.
 func SaveDeck(deck Deck) {
 	deckListOnce.Do(loadDeckList)
 	for i, d := range deckList {
@@ -151,21 +163,18 @@ func SaveDeck(deck Deck) {
 }
 
 // ////////////
-// Fonction temporaire pour créer un deck random
+// Temporary function to create a random deck
 // ////////////
-func debug_create_random_deck() Deck {
-	// retour un deck de 40 cartes
-	// avec un nom random
-
+func debugCreateRandomDeck() Deck {
 	count := 40
 	cards := make([]Card, 0, count)
 	for i := 0; i < count; i++ {
-		cards = append(cards, debug_get_random_player_card())
+		cards = append(cards, debugGetRandomPlayerCard())
 	}
 	id := ID()
 	randomName := "Deck " + id
 
-	//sort cards by id
+	// Sort cards by ID
 	slices.SortFunc(cards, func(a, b Card) int {
 		return a.GetId() - b.GetId()
 	})

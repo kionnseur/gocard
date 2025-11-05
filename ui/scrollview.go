@@ -4,6 +4,7 @@ import (
 	"github.com/jupiterrider/purego-sdl3/sdl"
 )
 
+// Vertically scrollable stack view.
 type UIScrollableStackView struct {
 	rect        sdl.FRect
 	color       sdl.Color
@@ -13,6 +14,7 @@ type UIScrollableStackView struct {
 	OnScroll    func(event *sdl.Event)
 }
 
+// Vertically scrollable grid view.
 type UIScrollableGridView struct {
 	rect        sdl.FRect
 	color       sdl.Color
@@ -23,6 +25,7 @@ type UIScrollableGridView struct {
 	gridConfig  *GridConfig
 }
 
+// Holds configuration for grid layout.
 type GridConfig struct {
 	cardWidth  float32
 	cardHeight float32
@@ -40,6 +43,7 @@ func NewGridConfig(cardWidth, cardHeight, cardGap float32) *GridConfig {
 // /////////////
 // UIScrollableStackView
 // /////////////
+
 func NewUIScrollableStackView(rect sdl.FRect, color sdl.Color, scrollSpeed float32) *UIScrollableStackView {
 	return &UIScrollableStackView{
 		rect:        rect,
@@ -62,12 +66,15 @@ func (e *UIScrollableStackView) SetRect(rect sdl.FRect) {
 func (e *UIScrollableStackView) GetElements() []Element {
 	return e.elements
 }
+
 func (e *UIScrollableStackView) SetElements(elements []Element) {
 	e.elements = elements
 }
+
 func (e *UIScrollableStackView) GetScrollY() float32 {
 	return e.scrollY
 }
+
 func (e *UIScrollableStackView) SetScrollY(scrollY float32) {
 	e.scrollY = scrollY
 }
@@ -83,7 +90,7 @@ func (e *UIScrollableStackView) Draw(renderer *sdl.Renderer) {
 		rect := elem.GetRect()
 		tmpRect := *rect
 		tmpRect.Y -= e.scrollY
-		// Test de visibilité
+		// Check visibility
 		if tmpRect.Y+tmpRect.H > e.rect.Y && tmpRect.Y < e.rect.Y+e.rect.H {
 			original := *rect
 			*rect = tmpRect
@@ -96,6 +103,7 @@ func (e *UIScrollableStackView) Draw(renderer *sdl.Renderer) {
 // /////////////
 // UIScrollableGridView
 // /////////////
+
 func NewUIScrollableGridView(renderer *sdl.Renderer, rect sdl.FRect, color sdl.Color, scrollSpeed float32, gridConfig GridConfig) *UIScrollableGridView {
 	return &UIScrollableGridView{
 		rect:        rect,
@@ -151,6 +159,7 @@ func (e *UIScrollableGridView) Draw(renderer *sdl.Renderer) {
 	}
 }
 
+// SetElementsPosition positions elements in a grid layout.
 func (e *UIScrollableGridView) SetElementsPosition(parent *sdl.FRect) {
 	cfg := e.gridConfig
 	maxColCards := int((e.rect.W + cfg.cardGap) / (cfg.cardWidth + cfg.cardGap))
