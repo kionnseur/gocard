@@ -20,20 +20,20 @@ func RenderDuel(renderer *sdl.Renderer) *ui.AppState {
 
 	duel := Duel{
 		LeftPlayer: Player{
-			Name:            "Red",
-			LifePoints:      4000,
-			InvocationPower: 9,
-			IvocationNuber:  5,
-			SpellTrapSet:    5,
-			Deck:            40,
+			Name:             "Red",
+			LifePoints:       4000,
+			InvocationPower:  9,
+			InvocationNumber: 5,
+			SpellTrapSet:     5,
+			Deck:             40,
 		},
 		RightPlayer: Player{
-			Name:            "Blue",
-			LifePoints:      4000,
-			InvocationPower: 9,
-			IvocationNuber:  5,
-			SpellTrapSet:    5,
-			Deck:            40,
+			Name:             "Blue",
+			LifePoints:       4000,
+			InvocationPower:  9,
+			InvocationNumber: 5,
+			SpellTrapSet:     5,
+			Deck:             40,
 		},
 		IsPaused: false,
 		Timer:    100,
@@ -74,12 +74,12 @@ func RenderDuel(renderer *sdl.Renderer) *ui.AppState {
 // Creates the duel screen elements.
 func getDuelElements() []ui.Element {
 	player := Player{
-		Name:            "Red",
-		LifePoints:      4000,
-		InvocationPower: 9,
-		IvocationNuber:  5,
-		SpellTrapSet:    5,
-		Deck:            40,
+		Name:             "Red",
+		LifePoints:       4000,
+		InvocationPower:  9,
+		InvocationNumber: 5,
+		SpellTrapSet:     5,
+		Deck:             40,
 	}
 
 	font := ui.GetDefaultFont(24)
