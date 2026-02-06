@@ -17,7 +17,7 @@ func RenderStartMenu(renderer *sdl.Renderer) *ui.AppState {
 		}
 
 		// Clear screen
-		sdl.SetRenderDrawColor(renderer, 200, 200, 200, 255)
+		sdl.SetRenderDrawColor(renderer, 35, 35, 45, 255)
 		sdl.RenderClear(renderer)
 
 		// Draw buttons
@@ -68,16 +68,16 @@ func getStartMenuButtons() []*ui.Button {
 		ui.NewButton(
 			"Deck Builder",
 			sdl.FRect{X: 140.0, Y: 80.0, W: 200.0, H: 50.0},
-			sdl.Color{R: 150, G: 150, B: 255, A: 255},
-			sdl.Color{R: 105, G: 105, B: 0, A: 255},
+			sdl.Color{R: 45, G: 85, B: 135, A: 255},
+			sdl.Color{R: 240, G: 240, B: 240, A: 255},
 			font,
 			func() *ui.AppState { return &ui.AppState{State: ui.StateDeckMenu} },
 		),
 		ui.NewButton(
 			"Duel",
 			sdl.FRect{X: 140, Y: 180, W: 200, H: 50},
-			sdl.Color{R: 0, G: 250, B: 0, A: 255},
-			sdl.Color{R: 255, G: 5, B: 255, A: 255},
+			sdl.Color{R: 135, G: 45, B: 45, A: 255},
+			sdl.Color{R: 240, G: 240, B: 240, A: 255},
 			font,
 			func() *ui.AppState { return &ui.AppState{State: ui.StateDuel} },
 		),

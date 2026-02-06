@@ -16,14 +16,13 @@ var (
 
 	deckId string
 
-	cardWidth   float32 = 100
-	cardHeight  float32 = 150
-	cardGap     float32 = 10
-	maxColCards int
+	cardWidth  float32 = 100
+	cardHeight float32 = 150
+	cardGap    float32 = 10
 
 	uiElements               []ui.Element
 	scrollableLVHRightColumn ui.UIScrollableGridView
-	uiCenterColumn           []ui.UICard
+	scrollableCenterColumn   ui.UIScrollableGridView
 	returnBtns               []*ui.Button
 	playerUICards            []ui.UICard
 )
@@ -31,6 +30,7 @@ var (
 // Renders the deck editor.
 func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, appState *ui.AppState) *ui.AppState {
 	scrollableLVHRightColumn = *(ui.NewUIScrollableGridView(renderer, sdl.FRect{}, sdl.Color{R: 100, G: 100, B: 100, A: 50}, 3, *ui.NewGridConfig(cardWidth, cardHeight, cardGap)))
+	scrollableCenterColumn = *(ui.NewUIScrollableGridView(renderer, sdl.FRect{}, sdl.Color{R: 45, G: 45, B: 55, A: 255}, 3, *ui.NewGridConfig(cardWidth, cardHeight, cardGap)))
 
 	deckId := appState.Data["deckId"]
 	selectedDeck = data.GetDeckById(deckId)
@@ -45,12 +45,13 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, appState *ui.A
 	for {
 		// Update window size
 		sdl.GetWindowSize(window, &data.ScreenWidth, &data.ScreenHeight)
-		sdl.SetRenderDrawColor(renderer, 0, 165, 0, 100)
+		sdl.SetRenderDrawColor(renderer, 30, 30, 40, 255)
 		sdl.RenderClear(renderer)
 
 		uiElements = append(getColumnUI(), getLeftColumnUI()...)
 
-		uiCenterColumn = getDeckCardListUI(uiElements[1].GetRect())
+		// Update center scrollable column with unique deck cards
+		setScrollableCenterColumn(uiElements[1].GetRect())
 
 		// Update right scrollable column
 		setScrollableLVHRightColumn(&playerUICards)
@@ -59,9 +60,7 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, appState *ui.A
 		for _, e := range uiElements {
 			e.Draw(renderer)
 		}
-		for _, e := range uiCenterColumn {
-			e.Draw(renderer)
-		}
+		scrollableCenterColumn.Draw(renderer)
 		returnBtns = getDeckEditorButtons()
 		for _, btn := range returnBtns {
 			btn.Draw(renderer)
@@ -89,7 +88,27 @@ func handleEvents() *ui.AppState {
 				return state
 			}
 		case sdl.EventMouseWheel:
-			scrollableLVHRightColumn.OnScroll(&event)
+			// Get mouse position to determine which column to scroll
+			var mx, my float32
+			sdl.GetMouseState(&mx, &my)
+
+			// Check if mouse is over center column
+			centerRect := scrollableCenterColumn.GetRect()
+			if mx >= centerRect.X && mx <= centerRect.X+centerRect.W &&
+				my >= centerRect.Y && my <= centerRect.Y+centerRect.H {
+				if scrollableCenterColumn.OnScroll != nil {
+					scrollableCenterColumn.OnScroll(&event)
+				}
+			}
+
+			// Check if mouse is over right column
+			rightRect := scrollableLVHRightColumn.GetRect()
+			if mx >= rightRect.X && mx <= rightRect.X+rightRect.W &&
+				my >= rightRect.Y && my <= rightRect.Y+rightRect.H {
+				if scrollableLVHRightColumn.OnScroll != nil {
+					scrollableLVHRightColumn.OnScroll(&event)
+				}
+			}
 		}
 	}
 	return nil
@@ -104,11 +123,18 @@ func handleButtonClick(event sdl.Event) *ui.AppState {
 			return btn.OnClick()
 		}
 	}
-	// If click on card, select it
-	for _, uiCard := range uiCenterColumn {
-		if ui.HitTest(uiCard.GetRect(), int32(x), int32(y)) {
-			selectedCard = uiCard.GetCard()
-			return nil
+	// Check center column cards (with scrolling)
+	centerRect := scrollableCenterColumn.GetRect()
+	if float32(y) > centerRect.Y && float32(y) < centerRect.Y+centerRect.H {
+		for _, elem := range scrollableCenterColumn.GetElements() {
+			if uiCard, ok := elem.(ui.UICard); ok {
+				rect := *uiCard.GetRect()
+				rect.Y -= scrollableCenterColumn.GetScrollY()
+				if ui.HitTest(&rect, int32(x), int32(y)) {
+					selectedCard = uiCard.GetCard()
+					return nil
+				}
+			}
 		}
 	}
 	// Check right column cards
@@ -136,9 +162,9 @@ func getColumnUI() []ui.Element {
 	widthColC := float32(data.ScreenWidth * 7 / 24)
 
 	return []ui.Element{
-		ui.NewHud(sdl.FRect{X: gap, Y: 0, W: widthColA, H: float32(data.ScreenHeight)}, sdl.Color{R: 255, G: 165, B: 0, A: 255}),
-		ui.NewHud(sdl.FRect{X: widthColA + (2 * gap), Y: 0, W: widthColB, H: float32(data.ScreenHeight)}, sdl.Color{R: 0, G: 255, B: 165, A: 255}),
-		ui.NewHud(sdl.FRect{X: widthColA + widthColB + 3*gap, Y: 0, W: widthColC, H: float32(data.ScreenHeight)}, sdl.Color{R: 165, G: 0, B: 255, A: 255}),
+		ui.NewHud(sdl.FRect{X: gap, Y: 0, W: widthColA, H: float32(data.ScreenHeight)}, sdl.Color{R: 40, G: 40, B: 50, A: 255}),
+		ui.NewHud(sdl.FRect{X: widthColA + (2 * gap), Y: 0, W: widthColB, H: float32(data.ScreenHeight)}, sdl.Color{R: 45, G: 45, B: 55, A: 255}),
+		ui.NewHud(sdl.FRect{X: widthColA + widthColB + 3*gap, Y: 0, W: widthColC, H: float32(data.ScreenHeight)}, sdl.Color{R: 40, G: 40, B: 50, A: 255}),
 	}
 }
 
@@ -158,6 +184,12 @@ func setScrollableLVHRightColumn(playerCards *[]ui.UICard) {
 		height = 0
 	}
 
+	// Calculate cards per row
+	maxCols := int((rec.W - gap) / (cardWidth + cardGap))
+	if maxCols < 1 {
+		maxCols = 1
+	}
+
 	scrollableLVHRightColumn.SetRect(sdl.FRect{
 		X: rec.X + gap/2,
 		Y: scrollYOrigin,
@@ -172,7 +204,7 @@ func setScrollableLVHRightColumn(playerCards *[]ui.UICard) {
 		if scrollableLVHRightColumn.GetScrollY() < 0 {
 			scrollableLVHRightColumn.SetScrollY(0)
 		}
-		numRows := (length + maxColCards - 1) / maxColCards
+		numRows := (length + maxCols - 1) / maxCols
 		maxScroll := float32(numRows)*(cardHeight+cardGap) - scrollableLVHRightColumn.GetRect().H
 		if maxScroll < 0 {
 			maxScroll = 0
@@ -205,7 +237,7 @@ func getLeftColumnUI() []ui.Element {
 
 	// Add button (disabled if limits reached)
 	if currentDeckSize >= 40 || currentCardCountInDeck >= 3 || currentPlayerCardCount > 3-currentCardCountInDeck {
-		elements[1] = ui.NewTextBox("Add to deck", sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 10, W: cardWidth, H: 30}, sdl.Color{R: 80, G: 80, B: 80, A: 255}, sdl.Color{R: 255, G: 0, B: 0, A: 255}, ui.GetDefaultFont(20))
+		elements[1] = ui.NewTextBox("Add to deck", sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 10, W: cardWidth, H: 30}, sdl.Color{R: 60, G: 60, B: 60, A: 255}, sdl.Color{R: 160, G: 160, B: 160, A: 255}, ui.GetDefaultFont(20))
 	} else {
 		elements[1] = ui.NewButton(
 			"Add to deck",
@@ -221,13 +253,13 @@ func getLeftColumnUI() []ui.Element {
 	}
 	// Remove button (disabled if none in deck)
 	if currentCardCountInDeck == 0 {
-		elements[2] = ui.NewTextBox("Remove from deck", sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 50, W: cardWidth, H: 30}, sdl.Color{R: 80, G: 80, B: 80, A: 255}, sdl.Color{R: 255, G: 0, B: 0, A: 255}, ui.GetDefaultFont(20))
+		elements[2] = ui.NewTextBox("Remove from deck", sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 50, W: cardWidth, H: 30}, sdl.Color{R: 60, G: 60, B: 60, A: 255}, sdl.Color{R: 160, G: 160, B: 160, A: 255}, ui.GetDefaultFont(20))
 	} else {
 		elements[2] = ui.NewButton(
 			"Remove from deck",
 			sdl.FRect{X: cardRect.X, Y: cardRect.Y + cardRect.H + 50, W: cardWidth, H: 30},
-			sdl.Color{R: 20, G: 20, B: 20, A: 100},
-			sdl.Color{R: 255, G: 255, B: 255, A: 255},
+			sdl.Color{R: 120, G: 60, B: 60, A: 255},
+			sdl.Color{R: 240, G: 240, B: 240, A: 255},
 			ui.GetDefaultFont(20),
 			func() *ui.AppState {
 				dollyDeck.RemoveCard(selectedCard)
@@ -238,27 +270,65 @@ func getLeftColumnUI() []ui.Element {
 	return elements
 }
 
-// Returns UI cards for the deck in center column.
-func getDeckCardListUI(centerColRect *sdl.FRect) []ui.UICard {
-	uiCenterColumn := make([]ui.UICard, 0, len(dollyDeck.GetCards()))
+// Configures the center scrollable column with unique cards from deck.
+func setScrollableCenterColumn(centerColRect *sdl.FRect) {
+	// Get unique cards and their counts
+	cardCounts := make(map[int]int)
+	uniqueCards := make([]data.Card, 0)
+	seenIds := make(map[int]bool)
 
-	// Calculate cards that fit in column width
-	maxColCards = int((centerColRect.W + cardGap) / (cardWidth + cardGap))
-
-	startX := centerColRect.X + (centerColRect.W-float32(maxColCards)*(cardWidth+cardGap)+cardGap)/2
-	y := 2 * cardGap
-
-	for i, card := range dollyDeck.GetCards() {
-
-		x := startX + float32(i%maxColCards)*(cardWidth+cardGap)
-		if i%maxColCards == 0 && i != 0 {
-			y += cardHeight + cardGap
+	for _, card := range dollyDeck.GetCards() {
+		cardCounts[card.GetId()]++
+		if !seenIds[card.GetId()] {
+			seenIds[card.GetId()] = true
+			uniqueCards = append(uniqueCards, card)
 		}
-		cardRect := sdl.FRect{X: x, Y: y, W: cardWidth, H: cardHeight}
-		uiCard := ui.CreateUICard(card, cardRect, deck.CountCard(card))
-		uiCenterColumn = append(uiCenterColumn, uiCard)
 	}
-	return uiCenterColumn
+
+	// Create UI elements for unique cards
+	elements := make([]ui.Element, len(uniqueCards))
+	for i, card := range uniqueCards {
+		elements[i] = ui.CreateUICard(card, sdl.FRect{}, cardCounts[card.GetId()])
+	}
+
+	scrollableCenterColumn.SetElements(elements)
+
+	// Calculate cards per row
+	maxCols := int((centerColRect.W - cardGap) / (cardWidth + cardGap))
+	if maxCols < 1 {
+		maxCols = 1
+	}
+
+	// Set the scrollable area rectangle (inside the center column)
+	scrollYOrigin := centerColRect.Y + cardGap
+	height := centerColRect.H - cardGap
+	if height < 0 {
+		height = 0
+	}
+
+	scrollableCenterColumn.SetRect(sdl.FRect{
+		X: centerColRect.X + cardGap/2,
+		Y: scrollYOrigin,
+		W: centerColRect.W - cardGap,
+		H: height,
+	})
+
+	// Configure scroll handler
+	scrollableCenterColumn.OnScroll = func(event *sdl.Event) {
+		y := event.Wheel().Y
+		scrollableCenterColumn.SetScrollY(scrollableCenterColumn.GetScrollY() - (float32(y)*cardGap)*scrollableCenterColumn.GetScrollSpeed())
+		if scrollableCenterColumn.GetScrollY() < 0 {
+			scrollableCenterColumn.SetScrollY(0)
+		}
+		numRows := (len(uniqueCards) + maxCols - 1) / maxCols
+		maxScroll := float32(numRows)*(cardHeight+cardGap) - scrollableCenterColumn.GetRect().H
+		if maxScroll < 0 {
+			maxScroll = 0
+		}
+		if scrollableCenterColumn.GetScrollY() > maxScroll {
+			scrollableCenterColumn.SetScrollY(maxScroll)
+		}
+	}
 }
 
 // Returns UI cards for player's collection.
@@ -277,16 +347,16 @@ func getDeckEditorButtons() []*ui.Button {
 		ui.NewButton(
 			"Back",
 			sdl.FRect{X: float32(data.ScreenWidth) - 50, Y: 0, W: 50, H: 50},
-			sdl.Color{R: 0, G: 255, B: 0, A: 255},
-			sdl.Color{R: 255, G: 0, B: 255, A: 255},
+			sdl.Color{R: 80, G: 80, B: 80, A: 255},
+			sdl.Color{R: 240, G: 240, B: 240, A: 255},
 			font,
 			func() *ui.AppState { return &ui.AppState{State: ui.StateDeckMenu} },
 		),
 		ui.NewButton(
-			"Save✅✔️☑️",
+			"Save",
 			sdl.FRect{X: float32(data.ScreenWidth) - 100, Y: 0, W: 50, H: 50},
-			sdl.Color{R: 0, G: 255, B: 0, A: 255},
-			sdl.Color{R: 255, G: 0, B: 255, A: 255},
+			sdl.Color{R: 60, G: 120, B: 80, A: 255},
+			sdl.Color{R: 240, G: 240, B: 240, A: 255},
 			font,
 			func() *ui.AppState {
 				if deckId != "" {

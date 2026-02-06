@@ -89,7 +89,7 @@ func getDuelElements() []ui.Element {
 	timer := getTimer(font)
 
 	elements := []ui.Element{
-		ui.NewButton("Back ⬅️", sdl.FRect{X: 140, Y: 280, W: 200, H: 50}, sdl.Color{R: 0, G: 255, B: 0, A: 255}, sdl.Color{R: 255, G: 0, B: 255, A: 255}, font, func() *ui.AppState { return &ui.AppState{State: ui.StateStartMenu} }),
+		ui.NewButton("Back ⬅️", sdl.FRect{X: 140, Y: 280, W: 200, H: 50}, sdl.Color{R: 80, G: 80, B: 80, A: 255}, sdl.Color{R: 240, G: 240, B: 240, A: 255}, font, func() *ui.AppState { return &ui.AppState{State: ui.StateStartMenu} }),
 	}
 
 	elements = append(elements, &timer)
@@ -105,8 +105,8 @@ func getTimer(font *ttf.Font) ui.TextBox {
 
 	return *ui.NewTextBox("Timer: "+fmt.Sprintf("%d", countdown),
 		sdl.FRect{X: 540, Y: 0, W: 200, H: 50},
-		sdl.Color{R: 255, G: 255, B: 0, A: 255},
-		sdl.Color{R: 0, G: 0, B: 255, A: 255},
+		sdl.Color{R: 60, G: 60, B: 70, A: 255},
+		sdl.Color{R: 240, G: 240, B: 240, A: 255},
 		font,
 	)
 }

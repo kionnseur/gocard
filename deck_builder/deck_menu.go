@@ -31,7 +31,7 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState *ui.App
 	for {
 		// Update window size
 		sdl.GetWindowSize(window, &data.ScreenWidth, &data.ScreenHeight)
-		sdl.SetRenderDrawColor(renderer, 255, 165, 0, 255)
+		sdl.SetRenderDrawColor(renderer, 35, 35, 45, 255)
 		sdl.RenderClear(renderer)
 
 		// Update selected deck if changed
@@ -140,8 +140,8 @@ func getDeckMenuButtons(parent *sdl.FRect) []*ui.Button {
 		ui.NewButton(
 			"New Deck",
 			sdl.FRect{X: parent.X, Y: parent.Y - 30, W: 200, H: 30},
-			sdl.Color{R: 0, G: 0, B: 0, A: 100},
-			sdl.Color{R: 255, G: 255, B: 255, A: 255},
+			sdl.Color{R: 60, G: 120, B: 80, A: 255},
+			sdl.Color{R: 240, G: 240, B: 240, A: 255},
 			font,
 			func() *ui.AppState {
 				askedDeckId = ""
@@ -151,8 +151,8 @@ func getDeckMenuButtons(parent *sdl.FRect) []*ui.Button {
 		ui.NewButton(
 			"Back ⬅️",
 			sdl.FRect{X: float32(data.ScreenWidth) - 50, Y: 0, W: 50, H: 50},
-			sdl.Color{R: 0, G: 255, B: 0, A: 255},
-			sdl.Color{R: 255, G: 0, B: 255, A: 255},
+			sdl.Color{R: 80, G: 80, B: 80, A: 255},
+			sdl.Color{R: 240, G: 240, B: 240, A: 255},
 			font,
 			func() *ui.AppState { return &ui.AppState{State: ui.StateStartMenu} },
 		),
@@ -163,12 +163,11 @@ func getDeckMenuButtons(parent *sdl.FRect) []*ui.Button {
 func uiGetDeckListElements(decksList []data.Deck, parent *sdl.FRect) []ui.Element {
 	elements := make([]ui.Element, len(decksList))
 	for i, deck := range decksList {
-		var r, g, b = ui.ColorBreathSin(i * 10)
 		elements[i] = ui.NewButton(
 			deck.GetName(),
 			sdl.FRect{X: parent.X, Y: parent.Y + float32(i*35), W: parent.W, H: 30},
-			sdl.Color{R: r, G: g, B: b, A: 255},
-			sdl.Color{R: 255 - r, G: 255 - g, B: 255 - b, A: 255},
+			sdl.Color{R: 60, G: 60, B: 70, A: 255},
+			sdl.Color{R: 240, G: 240, B: 240, A: 255},
 			font,
 			func() *ui.AppState {
 				askedDeckId = deck.GetId()
@@ -191,12 +190,11 @@ func uiGetDeckInfo(deck *data.Deck, parent *sdl.FRect) ([]ui.Element, []*ui.Butt
 		if i > 2 {
 			break
 		}
-		var r, g, b = ui.ColorBreathSin(i * 10)
 		elements[i] = ui.NewTextBox(
 			card.GetName(),
 			sdl.FRect{X: offset, Y: float32((i + 5) * 35), W: 200, H: 30},
-			sdl.Color{R: r, G: g, B: b, A: 255},
-			sdl.Color{R: 255 - r, G: 255 - g, B: 255 - b, A: 255},
+			sdl.Color{R: 50, G: 50, B: 60, A: 255},
+			sdl.Color{R: 220, G: 220, B: 220, A: 255},
 			font,
 		)
 	}
@@ -204,8 +202,8 @@ func uiGetDeckInfo(deck *data.Deck, parent *sdl.FRect) ([]ui.Element, []*ui.Butt
 		ui.NewButton(
 			"Edit",
 			sdl.FRect{X: offset, Y: float32(8 * 35), W: 200, H: 30},
-			sdl.Color{R: 100, G: 200, B: 100, A: 255},
-			sdl.Color{R: 155, G: 55, B: 155, A: 255},
+			sdl.Color{R: 60, G: 120, B: 80, A: 255},
+			sdl.Color{R: 240, G: 240, B: 240, A: 255},
 			font,
 			func() *ui.AppState {
 				return &ui.AppState{State: ui.StateDeckBuilder, Data: map[string]string{"deckId": deck.GetId(), "action": "edit"}}
@@ -215,8 +213,8 @@ func uiGetDeckInfo(deck *data.Deck, parent *sdl.FRect) ([]ui.Element, []*ui.Butt
 		ui.NewButton(
 			"Duplicate",
 			sdl.FRect{X: offset, Y: float32(9 * 35), W: 200, H: 30},
-			sdl.Color{R: 100, G: 100, B: 200, A: 255},
-			sdl.Color{R: 255, G: 255, B: 255, A: 255},
+			sdl.Color{R: 70, G: 100, B: 150, A: 255},
+			sdl.Color{R: 240, G: 240, B: 240, A: 255},
 			font,
 			func() *ui.AppState {
 				data.DuplicateDeckById(deck.GetId())
@@ -227,8 +225,8 @@ func uiGetDeckInfo(deck *data.Deck, parent *sdl.FRect) ([]ui.Element, []*ui.Butt
 		ui.NewButton(
 			"Delete",
 			sdl.FRect{X: offset, Y: float32(10 * 35), W: parent.W, H: 30},
-			sdl.Color{R: 200, G: 100, B: 100, A: 255},
-			sdl.Color{R: 55, G: 155, B: 155, A: 255},
+			sdl.Color{R: 160, G: 60, B: 60, A: 255},
+			sdl.Color{R: 240, G: 240, B: 240, A: 255},
 			font,
 			func() *ui.AppState {
 				data.DeleteDeckById(deck.GetId())
