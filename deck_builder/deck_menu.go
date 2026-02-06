@@ -23,6 +23,15 @@ var (
 	buttons        []*ui.Button
 	uiDeckInfoBtns []*ui.Button
 	uiDeckInfo     []ui.Element
+
+	// Caching to avoid per-frame allocations
+	cachedMenuButtons      []*ui.Button
+	cachedMenuButtonsWidth float32
+	lastDeckListCount      int
+	cachedDeckListElements []ui.Element
+	cachedDeckInfoDeckId   string
+	cachedDeckInfoElements []ui.Element
+	cachedDeckInfoButtons  []*ui.Button
 )
 
 // Renders the deck menu.
@@ -38,27 +47,45 @@ func RenderDeckMenu(renderer *sdl.Renderer, window *sdl.Window, appState *ui.App
 		if askedDeckId != lastDeckId {
 			deck = data.GetDeckById(askedDeckId)
 			lastDeckId = askedDeckId
+			// Invalidate deck info cache when selection changes
+			cachedDeckInfoDeckId = ""
 		}
 
-		// Display deck info if selected
+		// Display deck info if selected (with caching)
 		if askedDeckId != "" {
-			uiDeckInfo, uiDeckInfoBtns = uiGetDeckInfo(deck, scrollableLVHDeckList.GetRect())
-			for _, e := range uiDeckInfo {
+			if cachedDeckInfoDeckId != askedDeckId {
+				cachedDeckInfoElements, cachedDeckInfoButtons = uiGetDeckInfo(deck, scrollableLVHDeckList.GetRect())
+				cachedDeckInfoDeckId = askedDeckId
+				// Update global vars used by handleBuilderButtonClick
+				uiDeckInfo = cachedDeckInfoElements
+				uiDeckInfoBtns = cachedDeckInfoButtons
+			}
+			for _, e := range cachedDeckInfoElements {
 				e.Draw(renderer)
 			}
-			for _, e := range uiDeckInfoBtns {
+			for _, e := range cachedDeckInfoButtons {
 				e.Draw(renderer)
 			}
 		}
-		// Update deck list
-		updateDeckListElements()
+
+		// Update deck list only when deck count changes
+		currentDeckCount := len(data.GetDeckList())
+		if currentDeckCount != lastDeckListCount {
+			updateDeckListElements()
+			lastDeckListCount = currentDeckCount
+		}
 
 		// Display deck list, left column, and back button
 		scrollableLVHDeckList.GetRect().H = float32(data.ScreenHeight) - gap - scrollableLVHDeckList.GetRect().Y
 
 		scrollableLVHDeckList.Draw(renderer)
 
-		buttons = getDeckMenuButtons(scrollableLVHDeckList.GetRect())
+		// Cache menu buttons and only recreate if window width changes
+		if cachedMenuButtons == nil || cachedMenuButtonsWidth != float32(data.ScreenWidth) {
+			cachedMenuButtons = getDeckMenuButtons(scrollableLVHDeckList.GetRect())
+			cachedMenuButtonsWidth = float32(data.ScreenWidth)
+		}
+		buttons = cachedMenuButtons
 		for _, btn := range buttons {
 			btn.Draw(renderer)
 		}

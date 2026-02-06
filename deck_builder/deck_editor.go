@@ -11,7 +11,7 @@ import (
 var (
 	selectedCard   data.Card
 	selectedDeck   *data.Deck
-	dollyDeck      data.Deck // Copy of deck being edited
+	editingDeck    data.Deck // Working copy of deck being edited
 	playerCardDict map[int]int
 
 	deckId string
@@ -25,6 +25,15 @@ var (
 	scrollableCenterColumn   ui.UIScrollableGridView
 	returnBtns               []*ui.Button
 	playerUICards            []ui.UICard
+
+	// Caching to avoid per-frame allocations
+	cachedEditorButtons        []*ui.Button
+	cachedEditorButtonsWidth   float32
+	cachedLeftColumnCardId     int
+	cachedLeftColumnCardCount  int
+	cachedLeftColumnElements   []ui.Element
+	lastEditingDeckSize        int
+	cachedCenterColumnElements []ui.Element
 )
 
 // Renders the deck editor.
@@ -32,9 +41,11 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, appState *ui.A
 	scrollableLVHRightColumn = *(ui.NewUIScrollableGridView(renderer, sdl.FRect{}, sdl.Color{R: 100, G: 100, B: 100, A: 50}, 3, *ui.NewGridConfig(cardWidth, cardHeight, cardGap)))
 	scrollableCenterColumn = *(ui.NewUIScrollableGridView(renderer, sdl.FRect{}, sdl.Color{R: 45, G: 45, B: 55, A: 255}, 3, *ui.NewGridConfig(cardWidth, cardHeight, cardGap)))
 
-	deckId := appState.Data["deckId"]
+	deckId = appState.Data["deckId"]
 	selectedDeck = data.GetDeckById(deckId)
-	dollyDeck = data.CloneDeckById(deckId)
+	editingDeck = data.CloneDeckById(deckId)
+	// Force refresh of center column on deck open
+	lastEditingDeckSize = -1
 
 	playerCardDict := data.GetPlayerCards()
 	playerUICards = getPlayerCardListUI(playerCardDict)
@@ -48,10 +59,32 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, appState *ui.A
 		sdl.SetRenderDrawColor(renderer, 30, 30, 40, 255)
 		sdl.RenderClear(renderer)
 
-		uiElements = append(getColumnUI(), getLeftColumnUI()...)
+		// Build column UI (columns change with window size)
+		columnUI := getColumnUI()
 
-		// Update center scrollable column with unique deck cards
-		setScrollableCenterColumn(uiElements[1].GetRect())
+		// Cache left column UI - rebuild if selected card changes OR deck content changes
+		if selectedCard != nil {
+			currentCardCount := editingDeck.CountCard(selectedCard)
+			if selectedCard.GetId() != cachedLeftColumnCardId || currentCardCount != cachedLeftColumnCardCount {
+				cachedLeftColumnElements = getLeftColumnUI()
+				cachedLeftColumnCardId = selectedCard.GetId()
+				cachedLeftColumnCardCount = currentCardCount
+			}
+		} else if selectedCard == nil {
+			cachedLeftColumnElements = nil
+			cachedLeftColumnCardId = 0
+			cachedLeftColumnCardCount = 0
+		}
+
+		uiElements = uiElements[:0]
+		uiElements = append(columnUI, cachedLeftColumnElements...)
+
+		// Update center scrollable column only when deck size changes
+		currentDeckSize := len(editingDeck.GetCards())
+		if currentDeckSize != lastEditingDeckSize {
+			setScrollableCenterColumn(uiElements[1].GetRect())
+			lastEditingDeckSize = currentDeckSize
+		}
 
 		// Update right scrollable column
 		setScrollableLVHRightColumn(&playerUICards)
@@ -61,7 +94,13 @@ func RenderDeckEditor(renderer *sdl.Renderer, window *sdl.Window, appState *ui.A
 			e.Draw(renderer)
 		}
 		scrollableCenterColumn.Draw(renderer)
-		returnBtns = getDeckEditorButtons()
+
+		// Cache editor buttons - only recreate when window width changes
+		if cachedEditorButtons == nil || cachedEditorButtonsWidth != float32(data.ScreenWidth) {
+			cachedEditorButtons = getDeckEditorButtons()
+			cachedEditorButtonsWidth = float32(data.ScreenWidth)
+		}
+		returnBtns = cachedEditorButtons
 		for _, btn := range returnBtns {
 			btn.Draw(renderer)
 		}
@@ -137,12 +176,16 @@ func handleButtonClick(event sdl.Event) *ui.AppState {
 			}
 		}
 	}
-	// Check right column cards
-	for _, uiCard := range playerUICards {
-		if y > scrollableLVHRightColumn.GetRect().Y && y < scrollableLVHRightColumn.GetRect().Y+scrollableLVHRightColumn.GetRect().H &&
-			ui.HitTest(uiCard.GetRect(), int32(x), int32(y)) {
-			selectedCard = uiCard.GetCard()
-			return nil
+	// Check right column cards (with scrolling)
+	rightRect := scrollableLVHRightColumn.GetRect()
+	if float32(y) > rightRect.Y && float32(y) < rightRect.Y+rightRect.H {
+		for _, uiCard := range playerUICards {
+			rect := *uiCard.GetRect()
+			rect.Y -= scrollableLVHRightColumn.GetScrollY()
+			if ui.HitTest(&rect, int32(x), int32(y)) {
+				selectedCard = uiCard.GetCard()
+				return nil
+			}
 		}
 	}
 	// Check top right buttons
@@ -228,11 +271,11 @@ func getLeftColumnUI() []ui.Element {
 	cardHeight := cardWidth * 1.5
 	cardRect := sdl.FRect{X: float32(2 * data.ScreenWidth / 48), Y: 40, W: cardWidth, H: cardHeight}
 
-	uiCard := ui.CreateUICard(selectedCard, cardRect, dollyDeck.CountCard(selectedCard))
+	uiCard := ui.CreateUICard(selectedCard, cardRect, editingDeck.CountCard(selectedCard))
 	elements[0] = uiCard
 
-	currentDeckSize := len(dollyDeck.GetCards())
-	currentCardCountInDeck := dollyDeck.CountCard(selectedCard)
+	currentDeckSize := len(editingDeck.GetCards())
+	currentCardCountInDeck := editingDeck.CountCard(selectedCard)
 	currentPlayerCardCount := playerCardDict[selectedCard.GetId()]
 
 	// Add button (disabled if limits reached)
@@ -246,7 +289,7 @@ func getLeftColumnUI() []ui.Element {
 			sdl.Color{R: 255, G: 255, B: 255, A: 255},
 			ui.GetDefaultFont(20),
 			func() *ui.AppState {
-				dollyDeck.SetCards(append(dollyDeck.GetCards(), selectedCard))
+				editingDeck.SetCards(append(editingDeck.GetCards(), selectedCard))
 				return nil
 			},
 		)
@@ -262,7 +305,7 @@ func getLeftColumnUI() []ui.Element {
 			sdl.Color{R: 240, G: 240, B: 240, A: 255},
 			ui.GetDefaultFont(20),
 			func() *ui.AppState {
-				dollyDeck.RemoveCard(selectedCard)
+				editingDeck.RemoveCard(selectedCard)
 				return nil
 			},
 		)
@@ -277,7 +320,7 @@ func setScrollableCenterColumn(centerColRect *sdl.FRect) {
 	uniqueCards := make([]data.Card, 0)
 	seenIds := make(map[int]bool)
 
-	for _, card := range dollyDeck.GetCards() {
+	for _, card := range editingDeck.GetCards() {
 		cardCounts[card.GetId()]++
 		if !seenIds[card.GetId()] {
 			seenIds[card.GetId()] = true
@@ -359,10 +402,13 @@ func getDeckEditorButtons() []*ui.Button {
 			sdl.Color{R: 240, G: 240, B: 240, A: 255},
 			font,
 			func() *ui.AppState {
-				if deckId != "" {
-					*selectedDeck = dollyDeck
+				if deckId == "" {
+					// New deck - assign a new ID first
+					deckId = data.ID()
+					editingDeck.SetId(deckId)
 				}
-				data.SaveDeck(dollyDeck)
+				data.SaveDeck(editingDeck)
+				selectedDeck = data.GetDeckById(deckId)
 				return nil
 			},
 		),

@@ -151,10 +151,14 @@ func (e *UIScrollableGridView) Draw(renderer *sdl.Renderer) {
 
 	for _, elem := range e.elements {
 		rect := elem.GetRect()
-		rect.Y -= e.scrollY
-
-		if rect.Y+rect.H > e.rect.Y && rect.Y < e.rect.Y+e.rect.H {
+		tmpRect := *rect
+		tmpRect.Y -= e.scrollY
+		// Check visibility
+		if tmpRect.Y+tmpRect.H > e.rect.Y && tmpRect.Y < e.rect.Y+e.rect.H {
+			original := *rect
+			*rect = tmpRect
 			elem.Draw(renderer)
+			*rect = original
 		}
 	}
 }

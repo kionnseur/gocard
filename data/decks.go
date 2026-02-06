@@ -30,6 +30,10 @@ func (d *Deck) GetId() string {
 	return d.id
 }
 
+func (d *Deck) SetId(id string) {
+	d.id = id
+}
+
 func (d *Deck) GetCards() []Card {
 	return d.cards
 }
@@ -125,7 +129,8 @@ func DeleteDeckById(id string) {
 func CloneDeckById(id string) Deck {
 	deckListOnce.Do(loadDeckList)
 	if GetDeckById(id) == nil {
-		return Deck{id: ID(), name: "New Deck", cards: []Card{}}
+		// Return empty deck without ID - ID will be assigned on save
+		return Deck{name: "New Deck", cards: []Card{}}
 	}
 	var toCopy Deck = *GetDeckById(id)
 	var newDeck Deck

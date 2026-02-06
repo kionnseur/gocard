@@ -20,6 +20,7 @@ func drawTextBoxLike(renderer *sdl.Renderer, rect sdl.FRect, color sdl.Color, te
 	if surface == nil {
 		return
 	}
+	defer sdl.DestroySurface(surface)
 
 	// Create texture and render centered
 	texture := sdl.CreateTextureFromSurface(renderer, surface)
@@ -61,4 +62,14 @@ func getDefaultFontSize(size float32) float32 {
 		return 18
 	}
 	return size
+}
+
+// CleanupFontCache closes all cached fonts. Call on app exit.
+func CleanupFontCache() {
+	for _, font := range fontCache {
+		if font != nil {
+			ttf.CloseFont(font)
+		}
+	}
+	fontCache = make(map[float32]*ttf.Font)
 }

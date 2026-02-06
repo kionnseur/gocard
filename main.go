@@ -21,6 +21,7 @@ func main() {
 	}
 	defer sdl.DestroyRenderer(renderer)
 	defer sdl.DestroyWindow(window)
+	defer ui.CleanupFontCache()
 
 	// Initial application state: start menu
 	state := ui.AppState{State: ui.StateStartMenu}
